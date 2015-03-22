@@ -1,0 +1,40 @@
+Project: jQuery Facebook/Google Style Chat w/ RESTful Communication
+Price: 400
+3/18/2015, 2 weeks
+
+High Level understanding
+
+My high level design for this chat would be the following:
+
+1. On page load, plugin initializes the chat, asks the server for "user list", and the "opened chat" (maintaining open chats across page changes makes more intuitive sense. If this isn't implemented in the backend, I could use browser cache to make it happen)
+2. As site user click on a user on the user list, makes a "start chat" json call to server, and visually open a new chat window. Next load the previous messages. (if the list is very long, you should consider paginate it, and I can implement some sort of infinite scrolling for past messages)
+3. User can type and press enter, which would make a "send message" call.
+4. If user closes the chat window, send a "leave chat" call
+5. Meanwhile, the plugin would "check for new message" with a fixed interval. Based on the result, open new window, or display new messages, and possibly flashing browser title)
+
+
+Procedure
+1. Get the mockout out (design the top-level HTML architecture. E.g. Side menu, chat window)
+  HTML, CSS (2 hour)
+  - Side menu ()
+  - Chat window
+
+
+2. Design overall controller (2 hour)
+  jquery-chat -> initialize()
+    -> friend list
+    -> chat window
+3.  Interactino with creating window/closing window/messaging (1 hour)
+4. Polling (1 hour)
+5. clean up (1 hour)
+6. Documentation (1 hour)
+7. Further (grunt, css minify) (1 hour)
+
+
+INSTRUCTION
+-------------------
+1. Install grunt globablly:
+  npm install -g grunt-cli
+
+2. Install grunt dependencies for this project
+  npm install grunt --save-dev
