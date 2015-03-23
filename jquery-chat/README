@@ -22,13 +22,17 @@ Procedure
 
 2. Design overall controller (2 hour)
   jquery-chat -> initialize()
-    -> friend list
+    -> friend list (1 hour)
     -> chat window
 3.  Interactino with creating window/closing window/messaging (1 hour)
 4. Polling (1 hour)
 5. clean up (1 hour)
 6. Documentation (1 hour)
 7. Further (grunt, css minify) (1 hour)
+
+TIME
+-------------
+- setup grunt, less, sidebar (1 hour)
 
 
 INSTRUCTION
