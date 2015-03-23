@@ -2,10 +2,10 @@
    right: @sidebar-width + 20px;
    position: fixed;
 
+   height: 330px;
    margin: 0;
    padding: 0;
-
-   position: fixed;
+   bottom: -1px;
    bottom: 0;
    .chatbox{
 
@@ -14,6 +14,9 @@
      margin-right: 15px;
      padding: 0;
      position: relative;
+     bottom: -301px;
+     text-align: left;
+     display: inline-block;
      .border-box;
 
      .chatbox-header{
@@ -21,23 +24,36 @@
          left: -1px;
          width: @chatbox-width - 16px;
          height: 26px;
+
          padding: 2px 8px;
          line-height: 26px;
          background-color: #3c3f47;
 
          a{
             text-decoration: none;
-            font-size: 13px;
+            font-size: 15px;
             color: #fff;
             width: 100%;
-            cursor: pointer;
+
          }
          .chatbox-header-options{
             float: right;
+            a{
+               display: inline-block;
+               width: 20px;
+               font-size: 18px;
+               height: 20px;
+               line-height: 20px;
+               text-align: center;
+            }
          }
-
      }
+     .chatbox-header:hover{
+        cursor: pointer;
+     }
+
      .chatbox-footer{
+         display: none;
          position: absolute;
          bottom: 0;
          right: 0;
@@ -81,9 +97,13 @@
 
    .chatbox.open{
       height: 330px;
+      bottom: 0px !important;
       padding-bottom: @chatbox-footer-height;
       border-left: 1px solid #bbbcc0;
       border-right: 1px solid #bbbcc0;
+      .chatbox-footer{
+         display: block;
+      }
    }
 
 

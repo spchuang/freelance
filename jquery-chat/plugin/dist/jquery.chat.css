@@ -8,6 +8,7 @@
   width: 220px;
   margin: 0;
   padding: 0;
+  height: 26px;
   position: fixed;
   bottom: 0;
   right: 5px;
@@ -54,6 +55,7 @@
   background-color: #e9eaed;
 }
 .chat-sidebar .search-bar {
+  display: none;
   position: absolute;
   bottom: 0;
   right: 0;
@@ -74,11 +76,16 @@
   border-left: 1px solid #bbbcc0;
   border-right: 1px solid #bbbcc0;
 }
+.chat-sidebar.open .search-bar {
+  display: block;
+}
 .chat-dock-wrapper {
   right: 240px;
+  position: fixed;
+  height: 330px;
   margin: 0;
   padding: 0;
-  position: fixed;
+  bottom: -1px;
   bottom: 0;
 }
 .chat-dock-wrapper .chatbox {
@@ -87,6 +94,9 @@
   margin-right: 15px;
   padding: 0;
   position: relative;
+  bottom: -301px;
+  text-align: left;
+  display: inline-block;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -102,15 +112,26 @@
 }
 .chat-dock-wrapper .chatbox .chatbox-header a {
   text-decoration: none;
-  font-size: 13px;
+  font-size: 15px;
   color: #fff;
   width: 100%;
-  cursor: pointer;
 }
 .chat-dock-wrapper .chatbox .chatbox-header .chatbox-header-options {
   float: right;
 }
+.chat-dock-wrapper .chatbox .chatbox-header .chatbox-header-options a {
+  display: inline-block;
+  width: 20px;
+  font-size: 18px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+}
+.chat-dock-wrapper .chatbox .chatbox-header:hover {
+  cursor: pointer;
+}
 .chat-dock-wrapper .chatbox .chatbox-footer {
+  display: none;
   position: absolute;
   bottom: 0;
   right: 0;
@@ -153,7 +174,11 @@
 }
 .chat-dock-wrapper .chatbox.open {
   height: 330px;
+  bottom: 0px !important;
   padding-bottom: 40px;
   border-left: 1px solid #bbbcc0;
   border-right: 1px solid #bbbcc0;
+}
+.chat-dock-wrapper .chatbox.open .chatbox-footer {
+  display: block;
 }

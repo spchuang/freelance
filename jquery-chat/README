@@ -33,8 +33,9 @@ Procedure
 TIME
 -------------
 - setup grunt, less, sidebar (1 hour)
-
-
+- style for chat box (1 hour)
+- setup basic js (open/closing windows) (1.5hour)
+11:30
 INSTRUCTION
 -------------------
 1. Install grunt globablly:
@@ -42,3 +43,14 @@ INSTRUCTION
 
 2. Install grunt dependencies for this project
   npm install grunt --save-dev
+
+
+ DESIGN
+ ------------------
+
+ Model
+ -> polling ->
+
+ View (template)
+
+ Controller
