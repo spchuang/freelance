@@ -4,9 +4,6 @@
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
 }
-.hide {
-  display: none;
-}
 .chat-sidebar {
   width: 220px;
   margin: 0;
@@ -71,38 +68,10 @@
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
 }
-.chat-sidebar .search-bar .search-input {
-  width: 100%;
-  height: 30px;
-  padding: 8px ;
-  font-size: 12px;
-  line-height: 15px;
-  border: none;
-  background-color: #f4f4f4;
-  color: #232727;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-}
-.chat-sidebar .search-bar .cancel-btn a {
-  height: 30px;
-  width: 30px;
-  line-height: 30px;
-  text-align: center;
-  position: absolute;
-  right: 0;
-  top: 0;
-  text-decoration: none;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-}
 .chat-sidebar.open {
   height: 350px;
   background-color: #f4f4f4;
-  -webkit-transition: ease-out height 0.2s;
   transition: ease-out height 0.2s;
-  -o-transition: ease-out height 0.2s;
   padding-bottom: 30px;
   border-left: 1px solid #bbbcc0;
   border-right: 1px solid #bbbcc0;

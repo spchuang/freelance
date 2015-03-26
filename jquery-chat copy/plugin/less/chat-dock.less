@@ -1,0 +1,113 @@
+.chat-dock-wrapper{
+   right: @sidebar-width + 20px;
+   position: fixed;
+
+   height: 330px;
+   margin: 0;
+   padding: 0;
+   bottom: -1px;
+   bottom: 0;
+   .chatbox{
+
+     width: @chatbox-width;
+     background-color: #f3f3f3;
+     margin-right: 15px;
+     padding: 0;
+     position: relative;
+     bottom: -301px;
+     text-align: left;
+     display: inline-block;
+     .border-box;
+
+     .chatbox-header{
+         position: relative;
+         left: -1px;
+         width: @chatbox-width - 16px;
+         height: 26px;
+
+         padding: 2px 8px;
+         line-height: 26px;
+         background-color: #3c3f47;
+
+         a{
+            text-decoration: none;
+            font-size: 15px;
+            color: #fff;
+            width: 100%;
+
+         }
+         .chatbox-header-options{
+            float: right;
+            a{
+               display: inline-block;
+               width: 20px;
+               font-size: 18px;
+               height: 20px;
+               line-height: 20px;
+               text-align: center;
+            }
+         }
+     }
+     .chatbox-header:hover{
+        cursor: pointer;
+     }
+
+     .chatbox-footer{
+         display: none;
+         position: absolute;
+         bottom: 0;
+         right: 0;
+         width: 100%;
+         height: @chatbox-footer-height;
+
+         color: #7e8187;
+         background-color: #fff;
+         border-top: 1px solid #bbbcc0;
+         .border-box;
+         textarea{
+            overflow: auto;
+            vertical-align: top;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+         }
+         textarea.chatbox-input{
+            width: 100%;
+
+            margin: 0;
+            padding: 0;
+            padding: 5px 5px;
+            overflow-x: hidden;
+            max-height: 72px;
+            font-size: 13px;
+            background-color: inherit;
+            border: none !important;
+            border-radius: 0;
+            box-shadow: none;
+            resize: none;
+
+            .border-box;
+         }
+         textarea.chatbox-input:focus{
+            background-color: #fff;
+            box-shadow: none;
+            outline: none;
+         }
+     }
+   }
+
+   .chatbox.open{
+      height: 330px;
+      bottom: 0px !important;
+      padding-bottom: @chatbox-footer-height;
+      border-left: 1px solid #bbbcc0;
+      border-right: 1px solid #bbbcc0;
+      .chatbox-footer{
+         display: block;
+      }
+   }
+
+
+
+
+
+}
