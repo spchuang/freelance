@@ -38,9 +38,9 @@
 
    var chatDockWrapperHTML = '<div class="chat-dock-wrapper"></div>';
    var chatBoxHTML = '\
-      <div id="{{id}}" class="chatbox open">\
+      <div id="chatbox-{{Token}}" data-token="{{Token}}" class="chatbox open">\
          <div class="chatbox-header">\
-            <a class="chat-name" href="#">{{name}}</a>\
+            <a class="chat-name" href="#">{{DisplayName}}</a>\
             <div class="chatbox-header-options">\
                <a class="close-btn" href="#">x</a>\
             </div>\
@@ -52,12 +52,12 @@
       </div>';
 
    var chatBoxDialogHTML = '\
-   <div class="message-item">\
-      <p class="message-title">{{DisplayName}}:<b><small>\
-      <div class="message-bubble">{{MessageContent}</div>\
+   <div class="message-item {{#if isTarget}} message-target {{/if}}">\
+      <p class="message-from">{{DisplayName}}:<b><small>\
+      <div class="message-bubble">{{MessageContent}}</div>\
    </div>';
    // create Handlebar templates
-   var sideBarListItemTemplate = Handlebars.compile("<li data-token='{{Token}}'>{{DisplayName}}</li>")
+   var sideBarListItemTemplate = Handlebars.compile("<li data-token='{{Token}}' data-name='{{DisplayName}}'>{{DisplayName}}</li>")
    var sideBarTemplate = Handlebars.compile(sideBarHTML);
    var chatBoxTemplate = Handlebars.compile(chatBoxHTML);
    var chatBoxDialogTemplate = Handlebars.compile(chatBoxDialogHTML);
@@ -81,6 +81,7 @@
       render: function(){
          this.$el = $(this.template(this.toJSON()));
       },
+      onRender: function(){},
       registerEvents: function(){
          var that = this;
          // value is function name, key is event name
@@ -102,10 +103,10 @@
    // setup extend function
    var createView =  function(extendView){
       var v = $.extend({}, BaseView, extendView);
-      // init functions
       v.render();
-      v.registerEvents();
       v.init();
+      // init functions
+      v.registerEvents();
       return v;
    }
 
@@ -147,9 +148,12 @@
             this.$el.toggleClass('open');
          },
          onUserClick: function(evt){
-            var name = $(evt.target).text();
+            var target = $(evt.target);
 
-            vent.trigger('openUserChat', name);
+            vent.trigger('openUserChat', {
+               'DisplayName' : target.data('name'),
+               'Token'  : target.data('token')
+            });
          },
          onSearchChange: function(evt){
             // show cancel button
@@ -166,13 +170,15 @@
          }
       });
    }
-   var createChatBox = function(vent, param){
+   var createChatBox = function(vent, user){
       return createView({
          template : chatBoxTemplate,
          init: function(){
             this.header = this.$('.chatbox-header');
             this.closeBtn = this.$('.close-btn');
+            this.content = this.$(".chatbox-content");
             this.input = this.$(".chatbox-input");
+            this.user = user;
          },
          events: {
             "click .chatbox-header" : "onHeaderClick",
@@ -181,18 +187,32 @@
          },
          toJSON: function(){
             return {
-               name: param.name,
-               id: param.name
+               DisplayName: user.DisplayName,
+               Token: user.Token
             }
          },
          addMessage: function(message){
-            console.log(message);
+
+            this.content.append(chatBoxDialogTemplate(_.extend(message,{
+               'isTarget' : this.user.Token == message.Token
+            })));
+
+            // scroll to bottom
+            this.content.slimScroll({
+               scrollTo: this.content[0].scrollHeight
+            });
+         },
+         onRender: function(){
+
+            this.content.slimScroll({
+               height: this.content.height()
+            });
          },
          onHeaderClick: function(){
             this.$el.toggleClass('open');
          },
          onCloseClick: function(evt){
-            vent.trigger("closeUserChat", param.name);
+            vent.trigger("closeUserChat", this.user.Token);
             evt.stopPropagation();
          },
          onKeyDown: function(evt){
@@ -200,7 +220,7 @@
                ENTER_KEY = 13;
 
             if(key == ENTER_KEY){
-               this.addMessage({MessageContent: this.input.val()});
+               this.addMessage({MessageContent: this.input.val(), DisplayName: 'Test'});
                this.input.val("");
                evt.preventDefault();
                //submit
@@ -229,15 +249,44 @@
       init();
 
       // Public functions
-      API.openChatWindow = function(name){
+      API.openChatWindow = function(user){
          // create new chat box if it's not open already
 
-         chatBoxes[name] = createChatBox(vent, {name: name});
-         $chatDock.append(chatBoxes[name].$el);
+         chatBoxes[user.Token] = createChatBox(vent, user);
+         $chatDock.append(chatBoxes[user.Token].$el);
+         chatBoxes[user.Token].onRender();
+
+         chatBoxes[user.Token].addMessage({
+            'DisplayName': "Jack",
+            "Token": user.Token,
+            "MessageContent": "skjfa;jdf;alksdjf"
+         });
+
+         chatBoxes[user.Token].addMessage({
+            'DisplayName': "Test",
+            "Token": "000",
+            "MessageContent": "This is so cool"
+         });
+
+         chatBoxes[user.Token].addMessage({
+            'DisplayName': "Jack",
+            "Token": user.Token,
+            "MessageContent": "skjfa;jdf;alksdjf"
+         });
+         chatBoxes[user.Token].addMessage({
+            'DisplayName': "Jack",
+            "Token": user.Token,
+            "MessageContent": "skjfa;jdf;alksdjf"
+         });
+         chatBoxes[user.Token].addMessage({
+            'DisplayName': "Jack",
+            "Token": user.Token,
+            "MessageContent": "skjfa;jdf;alksdjf"
+         });
       }
-      API.closeChatWindow = function(name){
-         $chatDock.find('#'+name).remove();
-         delete chatBoxes[name];
+      API.closeChatWindow = function(Token){
+         $chatDock.find('#chatbox-'+Token).remove();
+         delete chatBoxes[Token];
       }
       API.loadFriendList = function(friends){
          chatSidebar.setFriendList(friends);
@@ -289,11 +338,12 @@
 
       var registerEvents = function(){
 
-         vent.on('openUserChat', function(e, name){
+         vent.on('openUserChat', function(e, user){
             // send an open chat to model
 
             // open a new chat window
-            view.openChatWindow(name);
+            view.openChatWindow(user);
+
          })
          vent.on('closeUserChat', function(e, name){
             view.closeChatWindow(name);
