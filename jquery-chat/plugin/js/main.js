@@ -45,14 +45,22 @@
                <a class="close-btn" href="#">x</a>\
             </div>\
          </div>\
+         <div class="chatbox-content"></div>\
          <div class="chatbox-footer">\
             <textarea class="chatbox-input"></textarea>\
          </div>\
       </div>';
+
+   var chatBoxDialogHTML = '\
+   <div class="message-item">\
+      <p class="message-title">{{DisplayName}}:<b><small>\
+      <div class="message-bubble">{{MessageContent}</div>\
+   </div>';
    // create Handlebar templates
    var sideBarListItemTemplate = Handlebars.compile("<li data-token='{{Token}}'>{{DisplayName}}</li>")
    var sideBarTemplate = Handlebars.compile(sideBarHTML);
    var chatBoxTemplate = Handlebars.compile(chatBoxHTML);
+   var chatBoxDialogTemplate = Handlebars.compile(chatBoxDialogHTML);
 
    // a basic view that allows simpler event registration
    var BaseView = {
@@ -71,7 +79,7 @@
          return {}
       },
       render: function(){
-         this.$el = $(this.template({}));
+         this.$el = $(this.template(this.toJSON()));
       },
       registerEvents: function(){
          var that = this;
@@ -104,7 +112,7 @@
    // View
    // create individual views
    var createChatSidebar = function(vent){
-      var view = createView({
+      return createView({
          template: sideBarTemplate,
          init: function(){
             this.header = this.$el.find('.header');
@@ -120,14 +128,14 @@
          },
          setFriendList: function(friends){
             this.friends = friends;
-
          },
          updateFriendList: function(){
             this.list.empty();
             // get filtered frind list
-            var searchString = this.searchInput.val();
+            var searchString = this.searchInput.val().toLowerCase();
+
             var filtered = _.filter(this.friends, function(friend){
-               return friend['DisplayName'].indexOf(searchString) >=0;
+               return friend['DisplayName'].toLowerCase().indexOf(searchString) >= 0;
             });
 
             var that = this;
@@ -157,40 +165,49 @@
             this.onSearchChange();
          }
       });
-      return view;
    }
    var createChatBox = function(vent, param){
-      var view = {
-         $el : null,
+      return createView({
+         template : chatBoxTemplate,
          init: function(){
-            this.render();
-            this.header = this.$el.find('.chatbox-header');
-            this.closeBtn = this.$el.find('.close-btn');
-
-            this.registerEvents();
+            this.header = this.$('.chatbox-header');
+            this.closeBtn = this.$('.close-btn');
+            this.input = this.$(".chatbox-input");
          },
-         render: function(){
-            this.$el = $(chatBoxTemplate({
+         events: {
+            "click .chatbox-header" : "onHeaderClick",
+            "click .close-btn" : "onCloseClick",
+            "keydown .chatbox-input" : "onKeyDown",
+         },
+         toJSON: function(){
+            return {
                name: param.name,
                id: param.name
-            }));
+            }
+         },
+         addMessage: function(message){
+            console.log(message);
          },
          onHeaderClick: function(){
             this.$el.toggleClass('open');
          },
          onCloseClick: function(evt){
-            console.log(vent);
             vent.trigger("closeUserChat", param.name);
             evt.stopPropagation();
          },
-         registerEvents: function(){
-            // maintain original scope (this)
-            this.header.on('click', $.proxy(this.onHeaderClick, this));
-            this.closeBtn.on('click', $.proxy(this.onCloseClick, this));
+         onKeyDown: function(evt){
+            var key = evt.keyCode || evt.which,
+               ENTER_KEY = 13;
+
+            if(key == ENTER_KEY){
+               this.addMessage({MessageContent: this.input.val()});
+               this.input.val("");
+               evt.preventDefault();
+               //submit
+            }
+
          }
-      }
-      view.init();
-      return view;
+      });
    }
 
    var View = function(vent){
