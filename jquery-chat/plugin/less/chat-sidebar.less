@@ -3,7 +3,7 @@
    width: @sidebar-width;
    margin: 0;
    padding: 0;
-   height: 26px;
+   height: @sidebar-header-height;
    position: fixed;
    bottom: 0;
    right: 5px;
@@ -13,10 +13,10 @@
       position: relative;
       left: -1px;
       width: @sidebar-width;
-      height: 26px;
-      line-height: 26px;
+      height: @sidebar-header-height;
+      line-height: @sidebar-header-height;
       background-color: #3c3f47;
-
+      opacity: 0.9;
       h3{
          display: inline-block;
          margin: 0 7px;
@@ -25,14 +25,18 @@
          width: 100%;
          cursor: pointer;
       }
+      &:hover{
+         opacity: 1;
+      }
    }
    .chat-list-container{
-      height: 100%;
+      height: @sidebar-height - @sidebar-header-height - 30px;
 
       ul{
          padding: 6px 0 0;
          margin: -2px 0 8px;
          list-style: none;
+         height: inherit;
 
          li{
             position: relative;
@@ -92,7 +96,7 @@
 
 
 .chat-sidebar.open{
-   height: 350px;
+   height: @sidebar-height;
    background-color: #f4f4f4;
    .transition(ease-out height .2s);
    padding-bottom: 30px;

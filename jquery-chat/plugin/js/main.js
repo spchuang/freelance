@@ -53,8 +53,14 @@
 
    var chatBoxDialogHTML = '\
    <div class="message-item {{#if isTarget}} message-target {{/if}}">\
-      <p class="message-from">{{DisplayName}}:<b><small>\
-      <div class="message-bubble">{{MessageContent}}</div>\
+      <b><p class="message-from">\
+         {{#if isTarget}}\
+            {{DisplayName}}:\
+         {{else}}\
+            You:\
+         {{/if}}\
+      </p></b>\
+      <p class="message-bubble">{{MessageContent}}</p>\
    </div>';
    // create Handlebar templates
    var sideBarListItemTemplate = Handlebars.compile("<li data-token='{{Token}}' data-name='{{DisplayName}}'>{{DisplayName}}</li>")
@@ -144,6 +150,12 @@
                that.list.append(sideBarListItemTemplate(friend));
             });
          },
+         onRender: function(){
+
+            this.list.slimScroll({
+               height: this.list.height()
+            });
+         },
          onHeaderClick: function(){
             this.$el.toggleClass('open');
          },
@@ -192,7 +204,6 @@
             }
          },
          addMessage: function(message){
-
             this.content.append(chatBoxDialogTemplate(_.extend(message,{
                'isTarget' : this.user.Token == message.Token
             })));
@@ -220,7 +231,9 @@
                ENTER_KEY = 13;
 
             if(key == ENTER_KEY){
-               this.addMessage({MessageContent: this.input.val(), DisplayName: 'Test'});
+               var message = this.input.val();
+               this.addMessage({MessageContent: message, DisplayName: 'Test'});
+               vent.trigger("sendMessage", this.user.Token, message);
                this.input.val("");
                evt.preventDefault();
                //submit
@@ -245,15 +258,20 @@
          chatWrap.append($chatDock);
 
          $("body").append(chatWrap);
+         chatSidebar.onRender();
       }
       init();
 
       // Public functions
       API.openChatWindow = function(user){
          // create new chat box if it's not open already
+         if(chatBoxes[user.Token]){
+            // move it to front?
+            return;
+         }
 
          chatBoxes[user.Token] = createChatBox(vent, user);
-         $chatDock.append(chatBoxes[user.Token].$el);
+         $chatDock.prepend(chatBoxes[user.Token].$el);
          chatBoxes[user.Token].onRender();
 
          chatBoxes[user.Token].addMessage({
@@ -286,6 +304,7 @@
       }
       API.closeChatWindow = function(Token){
          $chatDock.find('#chatbox-'+Token).remove();
+
          delete chatBoxes[Token];
       }
       API.loadFriendList = function(friends){
@@ -299,34 +318,47 @@
    var Model = function(vent){
       var API = {};
 
-
       // expost public functions for Chat Model
-      API.getFriendList = function(){
-         return [
+      // All get functions return a promise (waiting on server response)
+      // callback takes in {success, error}
+      API.getFriendList = function(callback){
+         $("#server-events").append("[SERVER]: Get friend list<br>");
+         var promise = $.Deferred();
+
+         var data =  [
             {'DisplayName': 'Jack', 'Token': '123'},
             {'DisplayName': 'Sam', 'Token': '234'},
             {'DisplayName': 'Michael', 'Token': '153'},
             {'DisplayName': 'Grace', 'Token': '732'},
             {'DisplayName': 'Jason', 'Token': '913'},
          ]
+
+         promise
+            .done(function(res){
+               if(callback.success) callback.success(data);
+            })
+            .fail(function(res){
+               if(callback.error) callback.error();
+            });
+         promise.resolve({});
       }
 
-      API.startChat = function(){
-
+      API.startChat = function(Token){
+         $("#server-events").append("[SERVER]: Start chat with user Token " + Token + "<br>");
       }
 
-      API.sendMessage = function(){
-
+      API.sendMessage = function(Token, message){
+         $("#server-events").append("[SERVER]: Send message to user Token " + Token + "<br>");
       }
 
-      API.leaveChat = function(){
-
+      API.leaveChat = function(Token){
+         $("#server-events").append("[SERVER]: Leave chat with user Token " + Token + "<br>");
       }
 
       API.getNewMessages = function(){
-
+         $("#server-events").append("[SERVER]: Get new messages...<br>");
+         return {};
       }
-
       return API;
    }
 
@@ -335,26 +367,43 @@
       var API = {};
       var vent; // shared event handler
       var model, view;
+      var pollingTime = 1000;
 
       var registerEvents = function(){
 
          vent.on('openUserChat', function(e, user){
             // send an open chat to model
-
+            model.startChat(user.Token);
             // open a new chat window
             view.openChatWindow(user);
-
          })
-         vent.on('closeUserChat', function(e, name){
-            view.closeChatWindow(name);
+
+         vent.on('closeUserChat', function(e, Token){
+            model.leaveChat(Token);
+            view.closeChatWindow(Token);
+
          });
+
+         vent.on('sendMessage', function(e, Token, message){
+            model.sendMessage(Token, message);
+         });
+      }
+
+      var startPolling = function(){
+         var a = model.getNewMessages();
+         setTimeout(startPolling, pollingTime);
       }
 
       var initializeChat = function(){
          // get friend list
-         var friends = model.getFriendList();
-         view.loadFriendList(friends);
+         model.getFriendList({
+            success: function(friends){
+               view.loadFriendList(friends);
+            }
+         });
 
+         // start polling
+         startPolling();
       }
 
       API.init = function(){
@@ -369,7 +418,7 @@
       return API;
    }
 
-   window.startChat = function(){
+   $.startChat = function(){
       var c = Controller();
       c.init();
       return c;
