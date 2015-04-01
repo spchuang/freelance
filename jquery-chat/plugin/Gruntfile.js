@@ -16,13 +16,13 @@ module.exports = function(grunt) {
       // this way we can use things like name and version (pkg.name)
       pkg: grunt.file.readJSON('package.json'),
 
-      banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ',
+      banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - */\n',
 
       // all of our configuration will go here
       less: {
          build: {
             files: {
-               'dist/jquery.chat.css': 'less/main.less'
+               'dist/<%= pkg.name %>.css': 'less/main.less'
             }
          },
       },
@@ -33,17 +33,16 @@ module.exports = function(grunt) {
          },
          build: {
             files: {
-               'dist/jquery.chat.min.css': 'dist/jquery.chat.css'
+               'dist/<%= pkg.name %>.min.css': 'dist/<%= pkg.name %>.css'
             }
          }
       },
       concat: {
          options: {
-            banner: '<%= banner %>',
-            stripBanners: true
+            banner: '<%= banner %>'
          },
          dist: {
-            src: 'src/*.js',
+            src: ['js/*.js','js/*/*.js'],
             dest: 'dist/<%= pkg.name %>.js'
          }
       },
@@ -76,6 +75,6 @@ module.exports = function(grunt) {
    grunt.registerTask('css', ['less', 'cssmin']);
 
 
-   //grunt.registerTask('compile', ['css','concat','uglify'])
+   grunt.registerTask('compile', ['css','concat'])
 
 };

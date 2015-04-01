@@ -2,7 +2,6 @@ Project: jQuery Facebook/Google Style Chat w/ RESTful Communication
 Price: 400
 3/18/2015, 2 weeks
 
-High Level understanding
 
 My high level design for this chat would be the following:
 
@@ -18,7 +17,6 @@ Procedure
   HTML, CSS (2 hour)
   - Side menu ()
   - Chat window
-
 
 2. Design overall controller (2 hour)
   jquery-chat -> initialize()
@@ -36,9 +34,10 @@ TIME
 - style for chat box (1 hour)
 - setup basic js (open/closing windows) (1.5hour)
 - setup baseView and friend list filter (2 hour)
+- clean up code, add url hookups (1 hour)
 
 11:30
-INSTRUCTION
+Compile code
 -------------------
 1. Install grunt globablly:
   npm install -g grunt-cli
@@ -46,13 +45,13 @@ INSTRUCTION
 2. Install grunt dependencies for this project
   npm install grunt --save-dev
 
+3. under the plugin directory, call the following to compile the code
+   grunt compile
 
- DESIGN
- ------------------
+4. use compiled code under dist/
 
- Model
- -> polling ->
 
- View (template)
-
- Controller
+Modifying style
+------------------
+- Play around with variables in less/main.less
+- compile less with "grunt compile"
