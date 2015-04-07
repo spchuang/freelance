@@ -21,6 +21,7 @@
       },
       updateFriendList: function(){
          this.list.empty();
+         this.$(".loading-sign").addClass('hide');
          // get filtered frind list
          var searchString = this.searchInput.val().toLowerCase();
 

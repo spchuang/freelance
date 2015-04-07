@@ -30,25 +30,46 @@
 
       var registerEvents = function(){
          vent.on('openUserChat', function(e, user){
-            // send an open chat to model
-            model.startChat(user.Token);
             // open a new chat window
             view.openChatWindow(user);
+
+            // send an open chat to model
+            model.startChat(user.Token, {
+               success: function(messages){
+                  view.loadChatMessages(user.Token, messages);
+               },
+               error: function(){
+                  console.log("ERROR: can't open user chat");
+               }
+            });
          })
 
          vent.on('closeUserChat', function(e, Token){
-            model.leaveChat(Token);
             view.closeChatWindow(Token);
-
+            model.leaveChat(Token, {
+               error: function(){
+                  console.log("ERROR: can't close user chat");
+               }
+            });
          });
 
          vent.on('sendMessage', function(e, Token, message){
-            model.sendMessage(Token, message);
+            model.sendMessage(Token, message, {
+               success: function(){},
+               error: function(){
+                  // show error sending
+               }
+            });
          });
       }
 
       var startPolling = function(){
-         var a = model.getNewMessages();
+         var a = model.getNewMessages({
+            success: function(messages){
+               // got a list of new messages
+               // add to chatboxes (open new chat boxes if necessary)
+            }
+         });
          setTimeout(startPolling, pollingTime);
       }
 
@@ -64,6 +85,9 @@
          model.getFriendList({
             success: function(friends){
                view.loadFriendList(friends);
+            },
+            error: function(){
+               console.log("ERROR: can't load friend list");
             }
          });
 
@@ -88,10 +112,10 @@
       var API = {};
       var baseUrl = '';
 
-      function handlePromise(promise){
+      function handlePromise(promise, callback){
          promise
             .done(function(res){
-               if(callback.success) callback.success(data);
+               if(callback.success) callback.success(res);
             })
             .fail(function(res){
                if(callback.error) callback.error();
@@ -103,11 +127,12 @@
       // callback takes in {success, error}
       API.getFriendList = function(callback){
          $("#server-events").append("[SERVER]: Get friend list<br>");
-
-         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
+         /*
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
-         handlePromise(promise, callback);
-         */
+         handlePromise(promise, callback);*/
+
+
          var data =  [
             {'DisplayName': 'Jack', 'Token': '123'},
             {'DisplayName': 'Sam', 'Token': '234'},
@@ -117,27 +142,58 @@
          ]
 
          var promise = $.Deferred();
-         promise
-            .done(function(res){
-               if(callback.success) callback.success(data);
-            })
-            .fail(function(res){
-               if(callback.error) callback.error();
-            });
-         promise.resolve({});
+         handlePromise(promise, callback);
+
+         // delay
+         setTimeout(
+           function(){
+             promise.resolve(data);
+          }, 1000);
       }
 
       API.startChat = function(Token, callback){
+         $("#server-events").append("[SERVER]: Start chat with user Token " + Token + "<br>");
+         // Start a chat, and server returns a list of messages
+
          /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
          var promise = $.get(url, { userToken: Token })
          handlePromise(promise, callback);*/
 
-         $("#server-events").append("[SERVER]: Start chat with user Token " + Token + "<br>");
+         var data = [
+            {
+               'User': "Test",
+               "UserToken": "000",
+               "Message": "This is so cool"
+            },
+            {
+               'User': "Jack",
+               "UserToken": "123",
+               "Message": "This is so cool"
+            },
+            {
+               'User': "Jack",
+               "UserToken": "000",
+               "Message": "This is so cool"
+            },
+            {
+               'User': "Test",
+               "UserToken": "123",
+               "Message": "This is so cool"
+            }
+         ]
+         var promise = $.Deferred();
+         handlePromise(promise, callback);
+
+         // delay
+         setTimeout(
+           function(){
+             promise.resolve(data);
+          }, 1000);
       }
 
-      API.sendMessage = function(Token, message){
+      API.sendMessage = function(Token, message, callback){
          /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SendMessage';
-         var promise = $.post(url, {userToken: Token, Message: message});
+         var promise = $.post(url, {UserToken: Token, Message: message});
          handlePromise(promise, callback);*/
 
          $("#server-events").append("[SERVER]: Send message to user Token " + Token + "<br>");
@@ -200,27 +256,12 @@
             "MessageContent": "skjfa;jdf;alksdjf"
          });
 
-         chatBoxes[user.Token].addMessage({
-            'DisplayName': "Test",
-            "Token": "000",
-            "MessageContent": "This is so cool"
-         });
+         chatBoxes[user.Token].addMessage();
+         */
+      }
+      API.loadChatMessages = function(Token, messages){
 
-         chatBoxes[user.Token].addMessage({
-            'DisplayName': "Jack",
-            "Token": user.Token,
-            "MessageContent": "skjfa;jdf;alksdjf"
-         });
-         chatBoxes[user.Token].addMessage({
-            'DisplayName': "Jack",
-            "Token": user.Token,
-            "MessageContent": "skjfa;jdf;alksdjf"
-         });
-         chatBoxes[user.Token].addMessage({
-            'DisplayName': "Jack",
-            "Token": user.Token,
-            "MessageContent": "skjfa;jdf;alksdjf"
-         });*/
+         chatBoxes[Token].addMessages(messages);
       }
       API.closeChatWindow = function(Token){
          $chatDock.find('#chatbox-'+Token).remove();
@@ -252,11 +293,11 @@
             return this.$el.find(selector);
       },
       init: function(){},
-      toJSON: function(){
+      serializeData: function(){
          return {}
       },
       render: function(){
-         this.$el = $(this.template(this.toJSON()));
+         this.$el = $(this.template(this.serializeData()));
       },
       onRender: function(){},
       registerEvents: function(){
@@ -313,6 +354,7 @@
       },
       updateFriendList: function(){
          this.list.empty();
+         this.$(".loading-sign").addClass('hide');
          // get filtered frind list
          var searchString = this.searchInput.val().toLowerCase();
 
@@ -372,27 +414,36 @@
             this.content = this.$(".chatbox-content");
             this.input = this.$(".chatbox-input");
             this.user = user;
+            this.isLoaded = false;
          },
          events: {
             "click .chatbox-header" : "onHeaderClick",
             "click .close-btn" : "onCloseClick",
             "keydown .chatbox-input" : "onKeyDown",
          },
-         toJSON: function(){
+         serializeData: function(){
             return {
                DisplayName: user.DisplayName,
-               Token: user.Token
+               Token: user.Token,
             }
          },
-         addMessage: function(message){
-            this.content.append($.ChatApp.Templates.chatBoxDialog(_.extend(message,{
-               'isTarget' : this.user.Token == message.Token
-            })));
-
+         addMessages: function(messages){
+            var that = this;
+            this.$(".loading-sign").addClass('hide');
+            _.each(messages, function(m){
+               that.addMessage(m);
+            });
             // scroll to bottom
             this.content.slimScroll({
                scrollTo: this.content[0].scrollHeight
             });
+         },
+         addMessage: function(message){
+            // PROBLEM: reorder of messages (recieve a message with an earlier timestamp)
+
+            this.content.append($.ChatApp.Templates.chatBoxDialog(_.extend(message,{
+               'isTarget' : this.user.Token == message.UserToken
+            })));
          },
          onRender: function(){
 
@@ -429,17 +480,20 @@
 "use strict";
 (function( $ ){
 
+
+
 // template
 var chatWrapperHTML = '<div class="chat-wrapper"></div>';
 var sideBarHTML = '\
    <div class="chat-sidebar open">\
       <div class="header"><h3>Chat List</h3></div>\
       <div class="chat-list-container">\
+         <img class="loading-sign" src="plugin/img/ajax-loader.gif">\
          <ul class="chat-list">\
          </ul>\
       </div>\
       <div class="search-bar">\
-         <input class="search-input" placeholder="Name or email">\
+         <input class="search-input" placeholder="Search for name">\
          <span class="cancel-btn hide"><a href="#">x</a></span>\
       </div>\
    </div>';
@@ -453,7 +507,9 @@ var chatBoxHTML = '\
             <a class="close-btn" href="#">x</a>\
          </div>\
       </div>\
-      <div class="chatbox-content"></div>\
+      <div class="chatbox-content">\
+         <img class="loading-sign" src="plugin/img/ajax-loader.gif">\
+      </div>\
       <div class="chatbox-footer">\
          <textarea class="chatbox-input"></textarea>\
       </div>\
@@ -468,7 +524,7 @@ var chatBoxDialogHTML = '\
          You:\
       {{/if}}\
    </p></b>\
-   <p class="message-bubble">{{MessageContent}}</p>\
+   <p class="message-bubble">{{Message}}</p>\
 </div>';
 // create Handlebar templates
 

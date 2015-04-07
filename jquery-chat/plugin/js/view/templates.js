@@ -1,17 +1,20 @@
 "use strict";
 (function( $ ){
 
+
+
 // template
 var chatWrapperHTML = '<div class="chat-wrapper"></div>';
 var sideBarHTML = '\
    <div class="chat-sidebar open">\
       <div class="header"><h3>Chat List</h3></div>\
       <div class="chat-list-container">\
+         <img class="loading-sign" src="plugin/img/ajax-loader.gif">\
          <ul class="chat-list">\
          </ul>\
       </div>\
       <div class="search-bar">\
-         <input class="search-input" placeholder="Name or email">\
+         <input class="search-input" placeholder="Search for name">\
          <span class="cancel-btn hide"><a href="#">x</a></span>\
       </div>\
    </div>';
@@ -25,7 +28,9 @@ var chatBoxHTML = '\
             <a class="close-btn" href="#">x</a>\
          </div>\
       </div>\
-      <div class="chatbox-content"></div>\
+      <div class="chatbox-content">\
+         <img class="loading-sign" src="plugin/img/ajax-loader.gif">\
+      </div>\
       <div class="chatbox-footer">\
          <textarea class="chatbox-input"></textarea>\
       </div>\
@@ -40,7 +45,7 @@ var chatBoxDialogHTML = '\
          You:\
       {{/if}}\
    </p></b>\
-   <p class="message-bubble">{{MessageContent}}</p>\
+   <p class="message-bubble">{{Message}}</p>\
 </div>';
 // create Handlebar templates
 

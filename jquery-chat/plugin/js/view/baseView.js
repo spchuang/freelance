@@ -14,11 +14,11 @@
             return this.$el.find(selector);
       },
       init: function(){},
-      toJSON: function(){
+      serializeData: function(){
          return {}
       },
       render: function(){
-         this.$el = $(this.template(this.toJSON()));
+         this.$el = $(this.template(this.serializeData()));
       },
       onRender: function(){},
       registerEvents: function(){

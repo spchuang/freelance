@@ -39,27 +39,12 @@
             "MessageContent": "skjfa;jdf;alksdjf"
          });
 
-         chatBoxes[user.Token].addMessage({
-            'DisplayName': "Test",
-            "Token": "000",
-            "MessageContent": "This is so cool"
-         });
+         chatBoxes[user.Token].addMessage();
+         */
+      }
+      API.loadChatMessages = function(Token, messages){
 
-         chatBoxes[user.Token].addMessage({
-            'DisplayName': "Jack",
-            "Token": user.Token,
-            "MessageContent": "skjfa;jdf;alksdjf"
-         });
-         chatBoxes[user.Token].addMessage({
-            'DisplayName': "Jack",
-            "Token": user.Token,
-            "MessageContent": "skjfa;jdf;alksdjf"
-         });
-         chatBoxes[user.Token].addMessage({
-            'DisplayName': "Jack",
-            "Token": user.Token,
-            "MessageContent": "skjfa;jdf;alksdjf"
-         });*/
+         chatBoxes[Token].addMessages(messages);
       }
       API.closeChatWindow = function(Token){
          $chatDock.find('#chatbox-'+Token).remove();

@@ -42,6 +42,14 @@
 .chat-sidebar .chat-list-container {
   height: 290px;
 }
+.chat-sidebar .chat-list-container img.loading-sign {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 50%;
+  margin-left: -10px;
+  margin-top: 30px;
+}
 .chat-sidebar .chat-list-container ul {
   padding: 6px 0 0;
   margin: -2px 0 8px;
@@ -223,6 +231,14 @@
   height: 100%;
   height: 260px;
   padding: 0 7px 0 7px;
+}
+.chat-dock-wrapper .chatbox .chatbox-content img.loading-sign {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 50%;
+  margin-left: -10px;
+  margin-top: 20px;
 }
 .chat-dock-wrapper .chatbox .chatbox-content .message-item {
   width: 80%;
