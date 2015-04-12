@@ -32,17 +32,14 @@
          $chatDock.prepend(chatBoxes[user.Token].$el);
          chatBoxes[user.Token].onRender();
 
-         /*
-         chatBoxes[user.Token].addMessage({
-            'DisplayName': "Jack",
-            "Token": user.Token,
-            "MessageContent": "skjfa;jdf;alksdjf"
-         });
-
-         chatBoxes[user.Token].addMessage();
-         */
       }
       API.loadChatMessages = function(Token, messages){
+
+         if(_.isUndefined(chatBoxes[Token])){
+            // open chat box
+            vent.trigger('openUserChat', Token);
+            return;
+         }
 
          chatBoxes[Token].addMessages(messages);
       }

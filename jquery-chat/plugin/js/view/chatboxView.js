@@ -11,6 +11,8 @@
             this.input = this.$(".chatbox-input");
             this.user = user;
             this.isLoaded = false;
+            this.messages = [];
+            this.messagesDom = [];
          },
          events: {
             "click .chatbox-header" : "onHeaderClick",
@@ -25,20 +27,67 @@
          },
          addMessages: function(messages){
             var that = this;
-            this.$(".loading-sign").addClass('hide');
+
+            // for new messages add date column
             _.each(messages, function(m){
-               that.addMessage(m);
+               m.time = new Date(m.SentOn);
             });
+
+            // add messages to the current list of messages
+            var newMessagesList = this.messages.concat(messages);
+
+            // sort the messages by time
+            newMessagesList.sort(function (a, b) {
+               return a.time - b.time;
+            });
+
+            this.$(".loading-sign").addClass('hide');
+
+            // insert new messages at correct location (based on time)
+            var i = 0, j =0;
+            var numInserted = 0;
+            for(;j < newMessagesList.length; j++) {
+               if (_.isUndefined(this.messages[i])){
+                  // this means we are adding to the end
+                  var m = this.createMessage(newMessagesList[j]);
+                  this.content.append(m);
+                  m.find('.timeago').timeago();
+                  this.messagesDom.push(m);
+               } else {
+                  // an assumption here is that j always move faster than i, since we never remove previous messages
+                  if (this.messages[i].time == newMessagesList[j].time){
+                     i++;
+                  } else if(this.messages[i].time > newMessagesList[j].time){
+                     // add a new message after (i - 1)th message
+                     var m = this.createMessage(newMessagesList[j]);
+
+                     var insertAfter = this.messagesDom[i - 1 + numInserted];
+                     if(_.isUndefined(insertAfter)){
+                        // inserting at the beginning of the list
+                        this.content.prepend(m);
+                     } else {
+                        this.messagesDom[i - 1 + numInserted].after(m);
+                     }
+
+                     numInserted++;
+                     m.find('.timeago').timeago();
+
+                     // insert new dom to ith location
+                     this.messagesDom.splice(i, 0, m);
+                  }
+               }
+            }
+
+            this.messages = newMessagesList;
+
             // scroll to bottom
             this.content.slimScroll({
                scrollTo: this.content[0].scrollHeight
             });
          },
-         addMessage: function(message){
-            // PROBLEM: reorder of messages (recieve a message with an earlier timestamp)
-
-            this.content.append($.ChatApp.Templates.chatBoxDialog(_.extend(message,{
-               'isTarget' : this.user.Token == message.UserToken
+         createMessage: function(message){
+            return $($.ChatApp.Templates.chatBoxDialog(_.extend(message,{
+               'isTarget' : message.Direction == 2
             })));
          },
          onRender: function(){
@@ -51,6 +100,11 @@
             this.$el.toggleClass('open');
          },
          onCloseClick: function(evt){
+            // dispose timeago to avoid memory leak
+            _.each(this.messagesDom, function(m){
+               m.find('.timeago').timeago('dispose');
+            })
+
             vent.trigger("closeUserChat", this.user.Token);
             evt.stopPropagation();
          },

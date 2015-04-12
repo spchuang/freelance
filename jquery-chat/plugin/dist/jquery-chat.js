@@ -23,20 +23,22 @@
    }
 
    // Controller
-   $.ChatApp.Controller = function(){
+   $.ChatApp.Controller = function(options){
       var vent; // shared event handler
       var model, view;
       var pollingTime = 1000;
 
       var registerEvents = function(){
          vent.on('openUserChat', function(e, user){
-            // open a new chat window
+            // open a new chat window (which is default in loading state)
             view.openChatWindow(user);
 
             // send an open chat to model
             model.startChat(user.Token, {
                success: function(messages){
+                  console.log("WLKJSD:LF");
                   view.loadChatMessages(user.Token, messages);
+
                },
                error: function(){
                   console.log("ERROR: can't open user chat");
@@ -66,6 +68,10 @@
       var startPolling = function(){
          var a = model.getNewMessages({
             success: function(messages){
+               _.each(messages, function(m){
+                  view.loadChatMessages(m.UserToken, m);
+               });
+
                // got a list of new messages
                // add to chatboxes (open new chat boxes if necessary)
             }
@@ -78,7 +84,7 @@
          registerEvents();
 
          //set up model and view
-         model = $.ChatApp.Model(vent);
+         model = $.ChatApp.Model(vent, options);
          view = $.ChatApp.View(vent);
 
          // get friend list
@@ -97,8 +103,9 @@
       init();
    }
 
-   $.ChatApp.start = function(){
-      var c = $.ChatApp.Controller();
+   $.ChatApp.start = function(options){
+      options = options || {};
+      var c = $.ChatApp.Controller(options);
       return c;
    }
 
@@ -108,9 +115,13 @@
 (function( $ ){
 
    // Model
-   $.ChatApp.Model = function(vent){
+   $.ChatApp.Model = function(vent, options){
       var API = {};
-      var baseUrl = '';
+
+      var baseUrl = options.baseUrl || "" ;
+      if (!baseUrl) {
+         console.log("[ERROR]: Model base url is not specified");
+      }
 
       function handlePromise(promise, callback){
          promise
@@ -127,18 +138,23 @@
       // callback takes in {success, error}
       API.getFriendList = function(callback){
          $("#server-events").append("[SERVER]: Get friend list<br>");
-         /*
+
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
-         handlePromise(promise, callback);*/
-
-
-         var data =  [
-            {'DisplayName': 'Jack', 'Token': '123'},
-            {'DisplayName': 'Sam', 'Token': '234'},
-            {'DisplayName': 'Michael', 'Token': '153'},
-            {'DisplayName': 'Grace', 'Token': '732'},
-            {'DisplayName': 'Jason', 'Token': '913'},
+         handlePromise(promise, callback);
+         return;
+         /*var data = [
+             {
+                 "IdField1": "Gomer",
+                 "IdField2": "Pyle",
+                 "DisplayName": "Gomer Pyle",
+                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c2",
+                 "GroupName": "Test Group",
+                 "TimeZone": "Mountain Standard Time",
+                 "Country": "United States",
+                 "EmailAddress": "chaitanya@marvici.com",
+                 "MobileNumber": "15126085937"
+             }
          ]
 
          var promise = $.Deferred();
@@ -148,39 +164,28 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);
+          }, 1000);*/
       }
 
       API.startChat = function(Token, callback){
          $("#server-events").append("[SERVER]: Start chat with user Token " + Token + "<br>");
          // Start a chat, and server returns a list of messages
 
-         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
          var promise = $.get(url, { userToken: Token })
-         handlePromise(promise, callback);*/
-
+         handlePromise(promise, callback);
+         /*
          var data = [
+
             {
-               'User': "Test",
-               "UserToken": "000",
-               "Message": "This is so cool"
+                "DisplayName": "Gomer Pyle :",
+                "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c2",
+                "Direction": 2,
+                "Interaction": 1,
+                "Message": "hi",
+                "SentOn": "2015-04-12T00:49:39.397"
             },
-            {
-               'User': "Jack",
-               "UserToken": "123",
-               "Message": "This is so cool"
-            },
-            {
-               'User': "Jack",
-               "UserToken": "000",
-               "Message": "This is so cool"
-            },
-            {
-               'User': "Test",
-               "UserToken": "123",
-               "Message": "This is so cool"
-            }
-         ]
+         ];
          var promise = $.Deferred();
          handlePromise(promise, callback);
 
@@ -188,27 +193,35 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);
+          }, 1000);*/
       }
 
       API.sendMessage = function(Token, message, callback){
-         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SendMessage';
-         var promise = $.post(url, {UserToken: Token, Message: message});
-         handlePromise(promise, callback);*/
-
          $("#server-events").append("[SERVER]: Send message to user Token " + Token + "<br>");
+
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SendMessage';
+         var promise = $.post(url, {UserToken: Token, Message: message});
+         handlePromise(promise, callback);
       }
 
       API.leaveChat = function(Token){
-         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/LeaveChat';
-         var promise = $.get(url, { userToken: Token })
-         handlePromise(promise, callback);*/
          $("#server-events").append("[SERVER]: Leave chat with user Token " + Token + "<br>");
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/LeaveChat';
+         var promise = $.get(url, { userToken: Token })
+         handlePromise(promise, callback);
       }
 
-      API.getNewMessages = function(){
+      var lastCheckedTime = new Date();
+      API.getNewMessages = function(callback){
          $("#server-events").append("[SERVER]: Get new messages...<br>");
-         return {};
+
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
+         var promise = $.post(url, {lastChecked: lastCheckedTime.toISOString()});
+
+         // current time as last checked time
+         lastCheckedTime = new Date();
+
+         handlePromise(promise, callback);
       }
       return API;
    }
@@ -249,17 +262,14 @@
          $chatDock.prepend(chatBoxes[user.Token].$el);
          chatBoxes[user.Token].onRender();
 
-         /*
-         chatBoxes[user.Token].addMessage({
-            'DisplayName': "Jack",
-            "Token": user.Token,
-            "MessageContent": "skjfa;jdf;alksdjf"
-         });
-
-         chatBoxes[user.Token].addMessage();
-         */
       }
       API.loadChatMessages = function(Token, messages){
+
+         if(_.isUndefined(chatBoxes[Token])){
+            // open chat box
+            vent.trigger('openUserChat', Token);
+            return;
+         }
 
          chatBoxes[Token].addMessages(messages);
       }
@@ -380,8 +390,8 @@
          var target = $(evt.target);
 
          vent.trigger('openUserChat', {
-            'DisplayName' : target.data('name'),
-            'Token'  : target.data('token')
+            DisplayName: target.data('name'), 
+            Token: target.data('token')
          });
       },
       onSearchChange: function(evt){
@@ -415,6 +425,8 @@
             this.input = this.$(".chatbox-input");
             this.user = user;
             this.isLoaded = false;
+            this.messages = [];
+            this.messagesDom = [];
          },
          events: {
             "click .chatbox-header" : "onHeaderClick",
@@ -429,20 +441,67 @@
          },
          addMessages: function(messages){
             var that = this;
-            this.$(".loading-sign").addClass('hide');
+
+            // for new messages add date column
             _.each(messages, function(m){
-               that.addMessage(m);
+               m.time = new Date(m.SentOn);
             });
+
+            // add messages to the current list of messages
+            var newMessagesList = this.messages.concat(messages);
+
+            // sort the messages by time
+            newMessagesList.sort(function (a, b) {
+               return a.time - b.time;
+            });
+
+            this.$(".loading-sign").addClass('hide');
+
+            // insert new messages at correct location (based on time)
+            var i = 0, j =0;
+            var numInserted = 0;
+            for(;j < newMessagesList.length; j++) {
+               if (_.isUndefined(this.messages[i])){
+                  // this means we are adding to the end
+                  var m = this.createMessage(newMessagesList[j]);
+                  this.content.append(m);
+                  m.find('.timeago').timeago();
+                  this.messagesDom.push(m);
+               } else {
+                  // an assumption here is that j always move faster than i, since we never remove previous messages
+                  if (this.messages[i].time == newMessagesList[j].time){
+                     i++;
+                  } else if(this.messages[i].time > newMessagesList[j].time){
+                     // add a new message after (i - 1)th message
+                     var m = this.createMessage(newMessagesList[j]);
+
+                     var insertAfter = this.messagesDom[i - 1 + numInserted];
+                     if(_.isUndefined(insertAfter)){
+                        // inserting at the beginning of the list
+                        this.content.prepend(m);
+                     } else {
+                        this.messagesDom[i - 1 + numInserted].after(m);
+                     }
+
+                     numInserted++;
+                     m.find('.timeago').timeago();
+
+                     // insert new dom to ith location
+                     this.messagesDom.splice(i, 0, m);
+                  }
+               }
+            }
+
+            this.messages = newMessagesList;
+
             // scroll to bottom
             this.content.slimScroll({
                scrollTo: this.content[0].scrollHeight
             });
          },
-         addMessage: function(message){
-            // PROBLEM: reorder of messages (recieve a message with an earlier timestamp)
-
-            this.content.append($.ChatApp.Templates.chatBoxDialog(_.extend(message,{
-               'isTarget' : this.user.Token == message.UserToken
+         createMessage: function(message){
+            return $($.ChatApp.Templates.chatBoxDialog(_.extend(message,{
+               'isTarget' : message.Direction == 2
             })));
          },
          onRender: function(){
@@ -455,6 +514,11 @@
             this.$el.toggleClass('open');
          },
          onCloseClick: function(evt){
+            // dispose timeago to avoid memory leak
+            _.each(this.messagesDom, function(m){
+               m.find('.timeago').timeago('dispose');
+            })
+
             vent.trigger("closeUserChat", this.user.Token);
             evt.stopPropagation();
          },
@@ -519,12 +583,13 @@ var chatBoxDialogHTML = '\
 <div class="message-item {{#if isTarget}} message-target {{/if}}">\
    <b><p class="message-from">\
       {{#if isTarget}}\
-         {{DisplayName}}:\
+         {{DisplayName}}\
       {{else}}\
          You:\
       {{/if}}\
    </p></b>\
    <p class="message-bubble">{{Message}}</p>\
+   <span class="timeago" title="{{SentOn}}"></span>\
 </div>';
 // create Handlebar templates
 

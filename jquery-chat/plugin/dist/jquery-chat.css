@@ -7,6 +7,12 @@
 .hide {
   display: none;
 }
+.timeago {
+  color: #bdc1c9;
+  cursor: pointer;
+  margin-top: 3px;
+  font-size: 11px;
+}
 .chat-sidebar {
   width: 220px;
   margin: 0;

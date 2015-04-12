@@ -40,12 +40,13 @@ var chatBoxDialogHTML = '\
 <div class="message-item {{#if isTarget}} message-target {{/if}}">\
    <b><p class="message-from">\
       {{#if isTarget}}\
-         {{DisplayName}}:\
+         {{DisplayName}}\
       {{else}}\
          You:\
       {{/if}}\
    </p></b>\
    <p class="message-bubble">{{Message}}</p>\
+   <span class="timeago" title="{{SentOn}}"></span>\
 </div>';
 // create Handlebar templates
 

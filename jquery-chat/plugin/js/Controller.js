@@ -22,20 +22,22 @@
    }
 
    // Controller
-   $.ChatApp.Controller = function(){
+   $.ChatApp.Controller = function(options){
       var vent; // shared event handler
       var model, view;
       var pollingTime = 1000;
 
       var registerEvents = function(){
          vent.on('openUserChat', function(e, user){
-            // open a new chat window
+            // open a new chat window (which is default in loading state)
             view.openChatWindow(user);
 
             // send an open chat to model
             model.startChat(user.Token, {
                success: function(messages){
+                  console.log("WLKJSD:LF");
                   view.loadChatMessages(user.Token, messages);
+
                },
                error: function(){
                   console.log("ERROR: can't open user chat");
@@ -65,8 +67,10 @@
       var startPolling = function(){
          var a = model.getNewMessages({
             success: function(messages){
-               // got a list of new messages
-               // add to chatboxes (open new chat boxes if necessary)
+               _.each(messages, function(m){
+                  view.loadChatMessages(m.UserToken, m);
+               });
+
             }
          });
          setTimeout(startPolling, pollingTime);
@@ -77,7 +81,7 @@
          registerEvents();
 
          //set up model and view
-         model = $.ChatApp.Model(vent);
+         model = $.ChatApp.Model(vent, options);
          view = $.ChatApp.View(vent);
 
          // get friend list
@@ -96,8 +100,9 @@
       init();
    }
 
-   $.ChatApp.start = function(){
-      var c = $.ChatApp.Controller();
+   $.ChatApp.start = function(options){
+      options = options || {};
+      var c = $.ChatApp.Controller(options);
       return c;
    }
 

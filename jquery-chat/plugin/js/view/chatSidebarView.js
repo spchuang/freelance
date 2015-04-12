@@ -47,8 +47,8 @@
          var target = $(evt.target);
 
          vent.trigger('openUserChat', {
-            'DisplayName' : target.data('name'),
-            'Token'  : target.data('token')
+            DisplayName: target.data('name'), 
+            Token: target.data('token')
          });
       },
       onSearchChange: function(evt){
