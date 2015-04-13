@@ -103,11 +103,11 @@
           }, 1000);*/
       }
 
-      API.sendMessage = function(Token, message, callback){
-         $("#server-events").append("[SERVER]: Send message to user Token " + Token + "<br>");
+      API.sendMessage = function(data, callback){
+         $("#server-events").append("[SERVER]: Send message to user Token " + data.Token + "<br>");
 
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SendChatMessage';
-         var promise = $.post(url, {UserToken: Token, Message: message});
+         var promise = $.post(url, {UserToken: data.Token, Message: data.Message});
          handlePromise(promise, callback);
       }
 

@@ -56,8 +56,8 @@
             });
          });
 
-         vent.on('sendMessage', function(e, Token, message){
-            model.sendMessage(Token, message, {
+         vent.on('sendMessage', function(e, data){
+            model.sendMessage(data, {
                success: function(){},
                error: function(){
                   // show error sending

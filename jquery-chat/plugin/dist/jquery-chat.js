@@ -57,8 +57,8 @@
             });
          });
 
-         vent.on('sendMessage', function(e, Token, message){
-            model.sendMessage(Token, message, {
+         vent.on('sendMessage', function(e, data){
+            model.sendMessage(data, {
                success: function(){},
                error: function(){
                   // show error sending
@@ -217,11 +217,11 @@
           }, 1000);*/
       }
 
-      API.sendMessage = function(Token, message, callback){
-         $("#server-events").append("[SERVER]: Send message to user Token " + Token + "<br>");
+      API.sendMessage = function(data, callback){
+         $("#server-events").append("[SERVER]: Send message to user Token " + data.Token + "<br>");
 
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SendChatMessage';
-         var promise = $.post(url, {UserToken: Token, Message: message});
+         var promise = $.post(url, {UserToken: data.Token, Message: data.Message});
          handlePromise(promise, callback);
       }
 
@@ -714,7 +714,10 @@
             if(key == ENTER_KEY){
                var message = this.input.val();
                //this.addMessage({MessageContent: message, DisplayName: 'Test'});
-               vent.trigger("sendMessage", this.user.Token, message);
+               vent.trigger("sendMessage", {
+                  Token: this.user.Token,
+                  Message: message
+               });
                this.input.val("");
                evt.preventDefault();
                //submit

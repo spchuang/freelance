@@ -127,7 +127,10 @@
             if(key == ENTER_KEY){
                var message = this.input.val();
                //this.addMessage({MessageContent: message, DisplayName: 'Test'});
-               vent.trigger("sendMessage", this.user.Token, message);
+               vent.trigger("sendMessage", {
+                  Token: this.user.Token,
+                  Message: message
+               });
                this.input.val("");
                evt.preventDefault();
                //submit
