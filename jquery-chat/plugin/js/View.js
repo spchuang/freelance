@@ -51,7 +51,7 @@
             return;
          }
 
-         chatBoxes[Token].addMessages(message);
+         chatBoxes[Token].addMessages([message]);
       }
       API.closeChatWindow = function(Token){
          // only a "non-hidden" chat could by closed
