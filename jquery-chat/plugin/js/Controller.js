@@ -1,6 +1,5 @@
+"use strict";
 (function( $ ){
-   "use strict";
-
    $.ChatApp = {};
 
    // Simple jquery pub/sub handler

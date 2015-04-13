@@ -98,10 +98,15 @@
                'isTarget' : message.Direction == 2
             })));
          },
+         focus:function(){
+            this.$el.addClass('open');
+            this.input.focus();
+         },
          onRender: function(){
             this.content.slimScroll({
                height: this.content.height()
             });
+            this.focus();
          },
          onHeaderClick: function(){
             this.$el.toggleClass('open');

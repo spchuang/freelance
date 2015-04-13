@@ -1,7 +1,6 @@
 /*! jquery-chat - v0.1.0 - */
+"use strict";
 (function( $ ){
-   "use strict";
-
    $.ChatApp = {};
 
    // Simple jquery pub/sub handler
@@ -285,7 +284,9 @@
       API.openChatWindow = function(user){
          // create and return new chat box if it's not open already
          if(chatBoxes[user.Token]){
-            // move it to front?
+            // move it to front and open the chatbox
+            chatExtend.showChat(user.Token);
+            chatBoxes[user.Token].focus();
             return;
          }
 
@@ -312,7 +313,7 @@
          $chatDock.find('#chatbox-'+Token).remove();
          delete chatBoxes[Token];
 
-         chatExtend.onRemoveChat();
+         chatExtend.onRemoveChat(Token);
 
       }
       API.loadFriendList = function(friends){
@@ -420,16 +421,33 @@
       OnChatExtendItemClick: function(){
 
       },
+      showChat: function(Token){
+         // if the chat is in closeChats, open it
+         var index = _.indexOf(this.closeChats, Token);
+
+         if (index != -1){
+            this.hideMostRecentOpenChat();
+            this.showClosedChat(Token);
+            this.closeChats.splice(index, 1);
+         }
+      },
+      hideMostRecentOpenChat: function(){
+         // hide the most recently opened chat
+         var closeToken = this.openChats.pop();
+         $('#chatbox-'+closeToken).addClass('hide');
+         this.closeChats.push(closeToken);
+      },
+      showClosedChat: function(Token){
+         // move the chatbox to the very left
+         var chatbox = $('#chatbox-'+Token).removeClass('hide').detach();
+         $(".chat-extend-wrap").after(chatbox);
+         this.openChats.push(Token);
+      },
       onAddChat: function(Token){
          if (this.openChats.length >= this.maxOpenChat){
             // show the option panel
             this.show();
-
-            // hide the most recently opened chat
-            var closeToken = _.last(this.openChats);
-            $('#chatbox-'+closeToken).addClass('hide');
-            this.openChats.pop();
-            this.closeChats.push(closeToken);
+            this.hideMostRecentOpenChat();
          }
          this.openChats.push(Token);
          this.reRender();
@@ -441,13 +459,9 @@
          // show the chatbox that was most recently hidden, and move it to the very left
          if (this.closeChats.length > 0){
             var openToken = _.last(this.closeChats);
-
-            // move the chatbox to the very left
-            var chatbox = $('#chatbox-'+openToken).removeClass('hide').detach();
-            $(".chat-extend-wrap").after(chatbox);
-
+            this.showClosedChat(openToken);
             this.closeChats.pop();
-            this.openChats.push(openToken);
+
          }
          if (this.closeChats.length == 0){
             this.hide();
@@ -639,10 +653,15 @@
                'isTarget' : message.Direction == 2
             })));
          },
+         focus:function(){
+            this.$el.addClass('open');
+            this.input.focus();
+         },
          onRender: function(){
             this.content.slimScroll({
                height: this.content.height()
             });
+            this.focus();
          },
          onHeaderClick: function(){
             this.$el.toggleClass('open');

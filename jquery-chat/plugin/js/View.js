@@ -29,7 +29,9 @@
       API.openChatWindow = function(user){
          // create and return new chat box if it's not open already
          if(chatBoxes[user.Token]){
-            // move it to front?
+            // move it to front and open the chatbox
+            chatExtend.showChat(user.Token);
+            chatBoxes[user.Token].focus();
             return;
          }
 
@@ -56,7 +58,7 @@
          $chatDock.find('#chatbox-'+Token).remove();
          delete chatBoxes[Token];
 
-         chatExtend.onRemoveChat();
+         chatExtend.onRemoveChat(Token);
 
       }
       API.loadFriendList = function(friends){
