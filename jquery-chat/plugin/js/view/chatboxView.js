@@ -39,7 +39,6 @@
 
             // add date column for new messages
             _.each(messages, function(m){
-               console.log(m);
                m.time = new Date(m.SentOn);
             });
 
@@ -50,6 +49,9 @@
             newMessagesList.sort(function (a, b) {
                return a.time - b.time;
             });
+
+            // remove duplicate
+            newMessagesList = _.uniq(newMessagesList, true);
 
             this.$(".loading-sign").addClass('hide');
 

@@ -70,7 +70,6 @@
       var startPolling = function(){
          var a = model.getNewMessages({
             success: function(messages){
-               console.log(messages);
                _.each(messages, function(m){
                   view.loadChatMessage(m.UserToken, m);
                });
