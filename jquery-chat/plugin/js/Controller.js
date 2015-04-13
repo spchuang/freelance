@@ -67,13 +67,25 @@
          });
       }
 
+      var i = 0;
       var startPolling = function(){
          var a = model.getNewMessages({
             success: function(messages){
+               // sort each messages based on Token
+               var chats = {};
+
+               // group messages based on chat Token
                _.each(messages, function(m){
-                  view.loadChatMessage(m.UserToken, m);
+                  if (!chats[m.UserToken]){
+                     chats[m.UserToken] = [m];
+                  } else {
+                     chats[m.UserToken].push(m);
+                  }
                });
 
+               _.each(chats, function(messages, Token){
+                  view.loadChatMessages(Token, messages);
+               });
             }
          });
          setTimeout(startPolling, pollingTime);

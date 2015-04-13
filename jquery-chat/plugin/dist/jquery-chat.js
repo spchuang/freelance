@@ -68,13 +68,25 @@
          });
       }
 
+      var i = 0;
       var startPolling = function(){
          var a = model.getNewMessages({
             success: function(messages){
+               // sort each messages based on Token
+               var chats = {};
+
+               // group messages based on chat Token
                _.each(messages, function(m){
-                  view.loadChatMessage(m.UserToken, m);
+                  if (!chats[m.UserToken]){
+                     chats[m.UserToken] = [m];
+                  } else {
+                     chats[m.UserToken].push(m);
+                  }
                });
 
+               _.each(chats, function(messages, Token){
+                  view.loadChatMessages(Token, messages);
+               });
             }
          });
          setTimeout(startPolling, pollingTime);
@@ -139,7 +151,6 @@
       // callback takes in {success, error}
       API.getFriendList = function(callback){
          $("#server-events").append("[SERVER]: Get friend list<br>");
-
 
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
@@ -243,15 +254,9 @@
          lastCheckedTime = new Date();
 
          handlePromise(promise, callback);
-         /*
-         var data = [
 
-            {
-                "DisplayName": "Gomer Pyle :",
-                "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c2",
-                "Message": "TEST.",
-            },
-         ];
+         /*
+         var data = [{"DisplayName":"Me :","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c2","Direction":1,"Interaction":1,"Message":"Sam Chuang wants to talk with you.","SentOn":"2015-04-13T17:44:26.047Z"}];
          var promise = $.Deferred();
          handlePromise(promise, callback);
 
@@ -310,16 +315,16 @@
          chatBoxes[user.Token].onRender();
          return chatBoxes[user.Token];
       }
-      API.loadChatMessage = function(Token, message){
+      API.loadChatMessages = function(Token, messages){
          if(_.isUndefined(chatBoxes[Token])){
             // remove the " :" from message.DisplayName
-            var name = message.DisplayName.replace(" :", "");
+            var name = messages[0].DisplayName.replace(" :", "");
             // open chat box
             vent.trigger('openUserChat', {Token: Token, DisplayName: name});
             return;
          }
 
-         chatBoxes[Token].addMessages([message]);
+         chatBoxes[Token].addMessages(messages);
       }
       API.closeChatWindow = function(Token){
          // only a "non-hidden" chat could by closed
@@ -631,14 +636,16 @@
 
             // add messages to the current list of messages
             var newMessagesList = this.messages.concat(messages);
-
+            
             // sort the messages by time
             newMessagesList.sort(function (a, b) {
                return a.time - b.time;
             });
 
             // remove duplicate
-            newMessagesList = _.uniq(newMessagesList, true);
+            newMessagesList = _.uniq(newMessagesList, function(item){
+               return item.SentOn;
+            });
 
             this.$(".loading-sign").addClass('hide');
 

@@ -44,14 +44,16 @@
 
             // add messages to the current list of messages
             var newMessagesList = this.messages.concat(messages);
-
+            
             // sort the messages by time
             newMessagesList.sort(function (a, b) {
                return a.time - b.time;
             });
 
             // remove duplicate
-            newMessagesList = _.uniq(newMessagesList, true);
+            newMessagesList = _.uniq(newMessagesList, function(item){
+               return item.SentOn;
+            });
 
             this.$(".loading-sign").addClass('hide');
 

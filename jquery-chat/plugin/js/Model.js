@@ -26,7 +26,6 @@
       API.getFriendList = function(callback){
          $("#server-events").append("[SERVER]: Get friend list<br>");
 
-
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
          handlePromise(promise, callback);
@@ -129,15 +128,9 @@
          lastCheckedTime = new Date();
 
          handlePromise(promise, callback);
-         /*
-         var data = [
 
-            {
-                "DisplayName": "Gomer Pyle :",
-                "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c2",
-                "Message": "TEST.",
-            },
-         ];
+         /*
+         var data = [{"DisplayName":"Me :","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c2","Direction":1,"Interaction":1,"Message":"Sam Chuang wants to talk with you.","SentOn":"2015-04-13T17:44:26.047Z"}];
          var promise = $.Deferred();
          handlePromise(promise, callback);
 

@@ -42,16 +42,16 @@
          chatBoxes[user.Token].onRender();
          return chatBoxes[user.Token];
       }
-      API.loadChatMessage = function(Token, message){
+      API.loadChatMessages = function(Token, messages){
          if(_.isUndefined(chatBoxes[Token])){
             // remove the " :" from message.DisplayName
-            var name = message.DisplayName.replace(" :", "");
+            var name = messages[0].DisplayName.replace(" :", "");
             // open chat box
             vent.trigger('openUserChat', {Token: Token, DisplayName: name});
             return;
          }
 
-         chatBoxes[Token].addMessages([message]);
+         chatBoxes[Token].addMessages(messages);
       }
       API.closeChatWindow = function(Token){
          // only a "non-hidden" chat could by closed
