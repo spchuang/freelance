@@ -2,13 +2,15 @@
    right: @sidebar-width + 20px;
    position: fixed;
 
+   z-index: 9999;
    height: 330px;
    margin: 0;
    padding: 0;
    bottom: -1px;
    bottom: 0;
-   .chatbox{
 
+
+   .chatbox{
      width: @chatbox-width;
      background-color: #f3f3f3;
      margin-right: 15px;
@@ -149,8 +151,56 @@
       }
    }
 
+   // similiar to chatbox
+   .chat-extend-wrap{
+      height: 290px;
+      bottom: 0px !important;
+      width: 50px;
+      margin-right: 15px;
+      display: inline-block;
+      position: relative;
 
+      .chat-extend-popover{
+         width: 90px;
+         position: absolute;
+         height: 50px;
+         right: 0;
+         padding: 2px;
+         background-color: green;
+         bottom: -10px;
+         display: none;
+         .border-box;
+      }
+      .chat-extend-popover.open{
+         display: block;
+      }
 
+      .chat-extend-btn{
+        width: 50px;
+        opacity: 0.9;
+        text-align: left;
+        position: absolute;
+        bottom: -40px;
+        cursor: pointer;
 
+        .border-box;
+
+        height: 30px;
+        opacity: 0.9;
+        padding: 2px 8px;
+        line-height: 26px;
+        background-color: #3c3f47;
+        a{
+           text-decoration: none;
+           font-size: 15px;
+           color: #fff;
+           width: 100%;
+
+        }
+        &:hover{
+           opacity: 1;
+        }
+      }
+   }
 
 }

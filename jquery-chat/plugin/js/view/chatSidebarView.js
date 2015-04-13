@@ -40,7 +40,6 @@
          });
       },
       onRender: function(){
-
          this.list.slimScroll({
             height: this.list.height()
          });

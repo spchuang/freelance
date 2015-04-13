@@ -5,7 +5,7 @@
   -webkit-box-sizing: border-box;
 }
 .hide {
-  display: none;
+  display: none !important;
 }
 .timeago {
   color: #bdc1c9;
@@ -133,6 +133,7 @@
 .chat-dock-wrapper {
   right: 240px;
   position: fixed;
+  z-index: 9999;
   height: 330px;
   margin: 0;
   padding: 0;
@@ -274,4 +275,52 @@
 }
 .chat-dock-wrapper .chatbox.open .chatbox-footer {
   display: block;
+}
+.chat-dock-wrapper .chat-extend-wrap {
+  height: 290px;
+  bottom: 0px !important;
+  width: 50px;
+  margin-right: 15px;
+  display: inline-block;
+  position: relative;
+}
+.chat-dock-wrapper .chat-extend-wrap .chat-extend-popover {
+  width: 90px;
+  position: absolute;
+  height: 50px;
+  right: 0;
+  padding: 2px;
+  background-color: green;
+  bottom: -10px;
+  display: none;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+.chat-dock-wrapper .chat-extend-wrap .chat-extend-popover.open {
+  display: block;
+}
+.chat-dock-wrapper .chat-extend-wrap .chat-extend-btn {
+  width: 50px;
+  text-align: left;
+  position: absolute;
+  bottom: -40px;
+  cursor: pointer;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  height: 30px;
+  opacity: 0.9;
+  padding: 2px 8px;
+  line-height: 26px;
+  background-color: #3c3f47;
+}
+.chat-dock-wrapper .chat-extend-wrap .chat-extend-btn a {
+  text-decoration: none;
+  font-size: 15px;
+  color: #fff;
+  width: 100%;
+}
+.chat-dock-wrapper .chat-extend-wrap .chat-extend-btn:hover {
+  opacity: 1;
 }

@@ -26,10 +26,18 @@
                loadingSign: options.loadingSign
             }
          },
+         loadInitialMessages: function(messages){
+            this.isLoaded = true;
+            this.addMessages(messages);
+         },
          addMessages: function(messages){
             var that = this;
+            // ignore all messages until the chat box is loaded first
+            if(!this.isLoaded){
+               return;
+            }
 
-            // for new messages add date column
+            // add date column for new messages
             _.each(messages, function(m){
                m.time = new Date(m.SentOn);
             });
@@ -55,7 +63,6 @@
                   m.find('.timeago').timeago();
                   this.messagesDom.push(m);
                } else {
-                  // an assumption here is that j always move faster than i, since we never remove previous messages
                   if (this.messages[i].time == newMessagesList[j].time){
                      i++;
                   } else if(this.messages[i].time > newMessagesList[j].time){
@@ -92,7 +99,6 @@
             })));
          },
          onRender: function(){
-
             this.content.slimScroll({
                height: this.content.height()
             });

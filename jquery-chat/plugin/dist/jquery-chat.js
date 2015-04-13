@@ -33,19 +33,20 @@
       var registerEvents = function(){
          vent.on('openUserChat', function(e, user){
             // open a new chat window (which is default in loading state)
-            view.openChatWindow(user);
+            var chatBox = view.openChatWindow(user);
 
-            // send an open chat to model
-            model.startChat(user.Token, {
-               success: function(messages){
-                  // load messages
-                  view.loadChatMessages(user.Token, messages);
-
-               },
-               error: function(){
-                  console.log("ERROR: can't open user chat");
-               }
-            });
+            // if chatbox is new
+            if(chatBox){
+               model.startChat(user.Token, {
+                  success: function(messages){
+                     // load initial messages
+                     chatBox.loadInitialMessages(messages);
+                  },
+                  error: function(){
+                     console.log("ERROR: can't open user chat");
+                  }
+               });
+            }
          })
 
          vent.on('closeUserChat', function(e, Token){
@@ -72,7 +73,7 @@
          var a = model.getNewMessages({
             success: function(messages){
                _.each(messages, function(m){
-                  view.loadChatMessages(m.UserToken, m);
+                  view.loadChatMessage(m.UserToken, m);
                });
 
             }
@@ -140,24 +141,33 @@
       API.getFriendList = function(callback){
          $("#server-events").append("[SERVER]: Get friend list<br>");
 
+         /*
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
          handlePromise(promise, callback);
+         */
 
-
-         /*
          var data = [
              {
-                 "IdField1": "Gomer",
-                 "IdField2": "Pyle",
                  "DisplayName": "Gomer Pyle",
                  "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c2",
-                 "GroupName": "Test Group",
-                 "TimeZone": "Mountain Standard Time",
-                 "Country": "United States",
-                 "EmailAddress": "chaitanya@marvici.com",
-                 "MobileNumber": "15126085937"
-             }
+             },
+             {
+                 "DisplayName": "Test 1",
+                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c3",
+             },
+             {
+                 "DisplayName": "Test 2",
+                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c4",
+             },
+             {
+                 "DisplayName": "Test 3",
+                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c5",
+             },
+             {
+                 "DisplayName": "Test 4",
+                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c6",
+             },
          ]
 
          var promise = $.Deferred();
@@ -167,26 +177,67 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);*/
+          }, 1000);
       }
 
       API.startChat = function(Token, callback){
          $("#server-events").append("[SERVER]: Start chat with user Token " + Token + "<br>");
          // Start a chat, and server returns a list of messages
-
+         /*
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
          var promise = $.get(url, { userToken: Token })
+         handlePromise(promise, callback);*/
+
+         var data = [
+            {
+                "DisplayName": "Gomer Pyle :",
+                "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c2",
+                "Message": "TEST.",
+            },
+         ];
+         var promise = $.Deferred();
          handlePromise(promise, callback);
+
+         // delay
+         setTimeout(
+           function(){
+             promise.resolve(data);
+          }, 1000);
+      }
+
+      API.sendMessage = function(Token, message, callback){
+         $("#server-events").append("[SERVER]: Send message to user Token " + Token + "<br>");
+
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SendChatMessage';
+         var promise = $.post(url, {UserToken: Token, Message: message});
+         handlePromise(promise, callback);
+      }
+
+      API.leaveChat = function(Token, callback){
+         $("#server-events").append("[SERVER]: Leave chat with user Token " + Token + "<br>");
+         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/LeaveChat';
+         var promise = $.get(url, { userToken: Token })
+         handlePromise(promise, callback);*/
+      }
+
+      var lastCheckedTime = new Date();
+      API.getNewMessages = function(callback){
+         $("#server-events").append("[SERVER]: Get new messages...<br>");
+         /*
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
+         var promise = $.get(url, {lastChecked: lastCheckedTime.toISOString()});
+
+         // current time as last checked time
+         lastCheckedTime = new Date();
+
+         handlePromise(promise, callback);*/
          /*
          var data = [
 
             {
                 "DisplayName": "Gomer Pyle :",
                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c2",
-                "Direction": 2,
-                "Interaction": 1,
-                "Message": "hi",
-                "SentOn": "2015-04-12T00:49:39.397"
+                "Message": "TEST.",
             },
          ];
          var promise = $.Deferred();
@@ -198,34 +249,6 @@
              promise.resolve(data);
           }, 1000);*/
       }
-
-      API.sendMessage = function(Token, message, callback){
-         $("#server-events").append("[SERVER]: Send message to user Token " + Token + "<br>");
-
-         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SendMessage';
-         var promise = $.post(url, {UserToken: Token, Message: message});
-         handlePromise(promise, callback);
-      }
-
-      API.leaveChat = function(Token){
-         $("#server-events").append("[SERVER]: Leave chat with user Token " + Token + "<br>");
-         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/LeaveChat';
-         var promise = $.get(url, { userToken: Token })
-         handlePromise(promise, callback);
-      }
-
-      var lastCheckedTime = new Date();
-      API.getNewMessages = function(callback){
-         $("#server-events").append("[SERVER]: Get new messages...<br>");
-
-         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
-         var promise = $.post(url, {lastChecked: lastCheckedTime.toISOString()});
-
-         // current time as last checked time
-         lastCheckedTime = new Date();
-
-         handlePromise(promise, callback);
-      }
       return API;
    }
 
@@ -236,14 +259,18 @@
 
    $.ChatApp.View = function(vent, options){
       var API = {};
-      var $chatDock, chatSidebar;
+      var $chatDock, chatSidebar, chatExtend;
       var chatBoxes = {};
 
       var init = function(){
-         // insert chat DOM
+         // insert chatdock and sidebar
          var chatWrap = $($.ChatApp.Templates.chatWrapperHTML);
          chatSidebar = $.ChatApp.View.createChatSidebar(vent, options);
          $chatDock = $($.ChatApp.Templates.chatDockWrapperHTML);
+
+         // create chat extend
+         chatExtend = $.ChatApp.View.createChatExtend();
+         $chatDock.append(chatExtend.$el);
 
          chatWrap.append(chatSidebar.$el);
          chatWrap.append($chatDock);
@@ -253,33 +280,40 @@
       }
       init();
 
+
       // Public functions
       API.openChatWindow = function(user){
-         // create new chat box if it's not open already
+         // create and return new chat box if it's not open already
          if(chatBoxes[user.Token]){
             // move it to front?
             return;
          }
 
+         chatExtend.onAddChat(user.Token);
+
          chatBoxes[user.Token] = $.ChatApp.View.createChatBox(vent, user, options);
-         $chatDock.prepend(chatBoxes[user.Token].$el);
+         $chatDock.find('.chat-extend-wrap').after(chatBoxes[user.Token].$el);
          chatBoxes[user.Token].onRender();
-
+         return chatBoxes[user.Token];
       }
-      API.loadChatMessages = function(Token, messages){
-
+      API.loadChatMessage = function(Token, message){
          if(_.isUndefined(chatBoxes[Token])){
+            // remove the " :" from message.DisplayName
+            var name = message.DisplayName.replace(" :", "");
             // open chat box
-            vent.trigger('openUserChat', Token);
+            vent.trigger('openUserChat', {Token: Token, DisplayName: name});
             return;
          }
 
-         chatBoxes[Token].addMessages(messages);
+         chatBoxes[Token].addMessages(message);
       }
       API.closeChatWindow = function(Token){
+         // only a "non-hidden" chat could by closed
          $chatDock.find('#chatbox-'+Token).remove();
-
          delete chatBoxes[Token];
+
+         chatExtend.onRemoveChat();
+
       }
       API.loadFriendList = function(friends){
          chatSidebar.setFriendList(friends);
@@ -347,6 +381,92 @@
 "use strict";
 (function( $ ){
 
+   $.ChatApp.View.createChatExtend = function(vent, options){
+   return $.ChatApp.View.createView({
+      template: $.ChatApp.Templates.chatExtend,
+      init: function(){
+         this.popover = this.$(".chat-extend-popover");
+
+         // stack keep track of most recently opened chats
+         this.openChats = [];
+         this.closeChats = [];
+
+         // this could be a dynamic value depending on the width of the window
+         this.maxOpenChat = 3;
+
+         $(document).click(function(event) {
+
+            if(!$(event.target).closest('.chat-extend-popover').length) {
+               if($('.chat-extend-popover').is(":visible")) {
+                  $('.chat-extend-popover').removeClass('open');
+               }
+            }
+         })
+      },
+      events: {
+         "click .chat-extend-btn" : "onBtnClick",
+         "click .chat-extend-item": "OnChatExtendItemClick"
+      },
+      hide: function(){
+         this.$el.addClass('hide');
+      },
+      show: function(){
+         this.$el.removeClass('hide');
+      },
+
+      reRender: function(){
+         // rerender the list
+      },
+      OnChatExtendItemClick: function(){
+
+      },
+      onAddChat: function(Token){
+         if (this.openChats.length >= this.maxOpenChat){
+            // show the option panel
+            this.show();
+
+            // hide the most recently opened chat
+            var closeToken = _.last(this.openChats);
+            $('#chatbox-'+closeToken).addClass('hide');
+            this.openChats.pop();
+            this.closeChats.push(closeToken);
+         }
+         this.openChats.push(Token);
+         this.reRender();
+      },
+      onRemoveChat: function(Token){
+         var index = _.indexOf(this.openChats, Token);
+         this.openChats.splice(index, 1);
+
+         // show the chatbox that was most recently hidden, and move it to the very left
+         if (this.closeChats.length > 0){
+            var openToken = _.last(this.closeChats);
+
+            // move the chatbox to the very left
+            var chatbox = $('#chatbox-'+openToken).removeClass('hide').detach();
+            $(".chat-extend-wrap").after(chatbox);
+
+            this.closeChats.pop();
+            this.openChats.push(openToken);
+         }
+         if (this.closeChats.length == 0){
+            this.hide();
+         }
+
+         this.reRender();
+      },
+      onBtnClick: function(evt){
+         this.popover.toggleClass('open');
+         evt.stopPropagation();
+      },
+   });
+}
+
+})( jQuery);
+
+"use strict";
+(function( $ ){
+
    $.ChatApp.View.createChatSidebar = function(vent, options){
    return $.ChatApp.View.createView({
       template: $.ChatApp.Templates.sideBar,
@@ -386,7 +506,6 @@
          });
       },
       onRender: function(){
-
          this.list.slimScroll({
             height: this.list.height()
          });
@@ -448,10 +567,18 @@
                loadingSign: options.loadingSign
             }
          },
+         loadInitialMessages: function(messages){
+            this.isLoaded = true;
+            this.addMessages(messages);
+         },
          addMessages: function(messages){
             var that = this;
+            // ignore all messages until the chat box is loaded first
+            if(!this.isLoaded){
+               return;
+            }
 
-            // for new messages add date column
+            // add date column for new messages
             _.each(messages, function(m){
                m.time = new Date(m.SentOn);
             });
@@ -477,7 +604,6 @@
                   m.find('.timeago').timeago();
                   this.messagesDom.push(m);
                } else {
-                  // an assumption here is that j always move faster than i, since we never remove previous messages
                   if (this.messages[i].time == newMessagesList[j].time){
                      i++;
                   } else if(this.messages[i].time > newMessagesList[j].time){
@@ -514,7 +640,6 @@
             })));
          },
          onRender: function(){
-
             this.content.slimScroll({
                height: this.content.height()
             });
@@ -553,8 +678,6 @@
 "use strict";
 (function( $ ){
 
-
-
 // template
 var chatWrapperHTML = '<div class="chat-wrapper"></div>';
 var sideBarHTML = '\
@@ -572,6 +695,13 @@ var sideBarHTML = '\
    </div>';
 
 var chatDockWrapperHTML = '<div class="chat-dock-wrapper"></div>';
+
+var chatExtendHTML = '\
+   <div class="chat-extend-wrap hide">\
+      <div class="chat-extend-popover"></div>\
+      <div class="chat-extend-btn"><a href="#">More</a></div>\
+   </div>';
+
 var chatBoxHTML = '\
    <div id="chatbox-{{Token}}" data-token="{{Token}}" class="chatbox open">\
       <div class="chatbox-header">\
@@ -607,7 +737,10 @@ $.ChatApp.Templates.chatWrapperHTML = chatWrapperHTML;
 $.ChatApp.Templates.chatDockWrapperHTML = chatDockWrapperHTML;
 $.ChatApp.Templates.sideBarListItem = Handlebars.compile("<li data-token='{{UserToken}}' data-name='{{DisplayName}}'>{{DisplayName}}</li>");
 $.ChatApp.Templates.sideBar = Handlebars.compile(sideBarHTML);
+$.ChatApp.Templates.chatExtend = Handlebars.compile(chatExtendHTML);
 $.ChatApp.Templates.chatBox = Handlebars.compile(chatBoxHTML);
 $.ChatApp.Templates.chatBoxDialog = Handlebars.compile(chatBoxDialogHTML);
+
+
 
 })( jQuery);

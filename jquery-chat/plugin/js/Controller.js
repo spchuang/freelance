@@ -32,19 +32,20 @@
       var registerEvents = function(){
          vent.on('openUserChat', function(e, user){
             // open a new chat window (which is default in loading state)
-            view.openChatWindow(user);
+            var chatBox = view.openChatWindow(user);
 
-            // send an open chat to model
-            model.startChat(user.Token, {
-               success: function(messages){
-                  // load messages
-                  view.loadChatMessages(user.Token, messages);
-
-               },
-               error: function(){
-                  console.log("ERROR: can't open user chat");
-               }
-            });
+            // if chatbox is new
+            if(chatBox){
+               model.startChat(user.Token, {
+                  success: function(messages){
+                     // load initial messages
+                     chatBox.loadInitialMessages(messages);
+                  },
+                  error: function(){
+                     console.log("ERROR: can't open user chat");
+                  }
+               });
+            }
          })
 
          vent.on('closeUserChat', function(e, Token){
@@ -71,7 +72,7 @@
          var a = model.getNewMessages({
             success: function(messages){
                _.each(messages, function(m){
-                  view.loadChatMessages(m.UserToken, m);
+                  view.loadChatMessage(m.UserToken, m);
                });
 
             }

@@ -1,8 +1,6 @@
 "use strict";
 (function( $ ){
 
-
-
 // template
 var chatWrapperHTML = '<div class="chat-wrapper"></div>';
 var sideBarHTML = '\
@@ -20,6 +18,13 @@ var sideBarHTML = '\
    </div>';
 
 var chatDockWrapperHTML = '<div class="chat-dock-wrapper"></div>';
+
+var chatExtendHTML = '\
+   <div class="chat-extend-wrap hide">\
+      <div class="chat-extend-popover"></div>\
+      <div class="chat-extend-btn"><a href="#">More</a></div>\
+   </div>';
+
 var chatBoxHTML = '\
    <div id="chatbox-{{Token}}" data-token="{{Token}}" class="chatbox open">\
       <div class="chatbox-header">\
@@ -55,7 +60,10 @@ $.ChatApp.Templates.chatWrapperHTML = chatWrapperHTML;
 $.ChatApp.Templates.chatDockWrapperHTML = chatDockWrapperHTML;
 $.ChatApp.Templates.sideBarListItem = Handlebars.compile("<li data-token='{{UserToken}}' data-name='{{DisplayName}}'>{{DisplayName}}</li>");
 $.ChatApp.Templates.sideBar = Handlebars.compile(sideBarHTML);
+$.ChatApp.Templates.chatExtend = Handlebars.compile(chatExtendHTML);
 $.ChatApp.Templates.chatBox = Handlebars.compile(chatBoxHTML);
 $.ChatApp.Templates.chatBoxDialog = Handlebars.compile(chatBoxDialogHTML);
+
+
 
 })( jQuery);
