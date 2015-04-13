@@ -163,13 +163,27 @@
       .chat-extend-popover{
          width: 90px;
          position: absolute;
-         height: 50px;
          right: 0;
          padding: 2px;
-         background-color: green;
-         bottom: -10px;
+         background-color: #3c3f47;
+         bottom: -8px;
          display: none;
          .border-box;
+
+         .chat-extend-item{
+            cursor: pointer;
+            .border-box;
+            height: 24px;
+            line-height: 20px;
+            padding: 2px 2px;
+            text-align: center;
+            opacity: 0.9;
+            font-size: 13px;
+            color: #fff;
+            &:hover{
+               opacity: 1;
+            }
+         }
       }
       .chat-extend-popover.open{
          display: block;
@@ -195,7 +209,6 @@
            font-size: 15px;
            color: #fff;
            width: 100%;
-
         }
         &:hover{
            opacity: 1;

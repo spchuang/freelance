@@ -13,7 +13,7 @@
          $chatDock = $($.ChatApp.Templates.chatDockWrapperHTML);
 
          // create chat extend
-         chatExtend = $.ChatApp.View.createChatExtend();
+         chatExtend = $.ChatApp.View.createChatExtend({chatBoxes: chatBoxes});
          $chatDock.append(chatExtend.$el);
 
          chatWrap.append(chatSidebar.$el);
@@ -35,7 +35,7 @@
             return;
          }
 
-         chatExtend.onAddChat(user.Token);
+         chatExtend.onAddChat(user);
 
          chatBoxes[user.Token] = $.ChatApp.View.createChatBox(vent, user, options);
          $chatDock.find('.chat-extend-wrap').after(chatBoxes[user.Token].$el);
@@ -59,7 +59,6 @@
          delete chatBoxes[Token];
 
          chatExtend.onRemoveChat(Token);
-
       }
       API.loadFriendList = function(friends){
          chatSidebar.setFriendList(friends);

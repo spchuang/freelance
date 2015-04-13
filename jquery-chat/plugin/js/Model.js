@@ -26,12 +26,12 @@
       API.getFriendList = function(callback){
          $("#server-events").append("[SERVER]: Get friend list<br>");
 
-         /*
+
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
          handlePromise(promise, callback);
-         */
 
+         /*
          var data = [
              {
                  "DisplayName": "Gomer Pyle",
@@ -53,6 +53,18 @@
                  "DisplayName": "Test 4",
                  "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c6",
              },
+             {
+                 "DisplayName": "Test 5",
+                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c7",
+             },
+             {
+                 "DisplayName": "Test 6",
+                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c8",
+             },
+             {
+                 "DisplayName": "Test 7",
+                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c9",
+             },
          ]
 
          var promise = $.Deferred();
@@ -62,17 +74,18 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);
+          }, 1000);*/
       }
 
       API.startChat = function(Token, callback){
          $("#server-events").append("[SERVER]: Start chat with user Token " + Token + "<br>");
          // Start a chat, and server returns a list of messages
-         /*
+
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
          var promise = $.get(url, { userToken: Token })
-         handlePromise(promise, callback);*/
+         handlePromise(promise, callback);
 
+         /*
          var data = [
             {
                 "DisplayName": "Gomer Pyle :",
@@ -87,7 +100,7 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);
+          }, 1000);*/
       }
 
       API.sendMessage = function(Token, message, callback){
@@ -100,22 +113,22 @@
 
       API.leaveChat = function(Token, callback){
          $("#server-events").append("[SERVER]: Leave chat with user Token " + Token + "<br>");
-         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/LeaveChat';
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/LeaveChat';
          var promise = $.get(url, { userToken: Token })
-         handlePromise(promise, callback);*/
+         handlePromise(promise, callback);
       }
 
       var lastCheckedTime = new Date();
       API.getNewMessages = function(callback){
          $("#server-events").append("[SERVER]: Get new messages...<br>");
-         /*
+
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
          var promise = $.get(url, {lastChecked: lastCheckedTime.toISOString()});
 
          // current time as last checked time
          lastCheckedTime = new Date();
 
-         handlePromise(promise, callback);*/
+         handlePromise(promise, callback);
          /*
          var data = [
 

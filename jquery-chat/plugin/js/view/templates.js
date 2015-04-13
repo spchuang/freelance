@@ -61,6 +61,8 @@ $.ChatApp.Templates.chatDockWrapperHTML = chatDockWrapperHTML;
 $.ChatApp.Templates.sideBarListItem = Handlebars.compile("<li data-token='{{UserToken}}' data-name='{{DisplayName}}'>{{DisplayName}}</li>");
 $.ChatApp.Templates.sideBar = Handlebars.compile(sideBarHTML);
 $.ChatApp.Templates.chatExtend = Handlebars.compile(chatExtendHTML);
+$.ChatApp.Templates.chatExtendItem = Handlebars.compile("<div class='chat-extend-item' data-token='{{Token}}'>{{DisplayName}}</div>");
+
 $.ChatApp.Templates.chatBox = Handlebars.compile(chatBoxHTML);
 $.ChatApp.Templates.chatBoxDialog = Handlebars.compile(chatBoxDialogHTML);
 

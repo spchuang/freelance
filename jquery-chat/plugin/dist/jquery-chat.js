@@ -140,12 +140,12 @@
       API.getFriendList = function(callback){
          $("#server-events").append("[SERVER]: Get friend list<br>");
 
-         /*
+
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
          handlePromise(promise, callback);
-         */
 
+         /*
          var data = [
              {
                  "DisplayName": "Gomer Pyle",
@@ -167,6 +167,18 @@
                  "DisplayName": "Test 4",
                  "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c6",
              },
+             {
+                 "DisplayName": "Test 5",
+                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c7",
+             },
+             {
+                 "DisplayName": "Test 6",
+                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c8",
+             },
+             {
+                 "DisplayName": "Test 7",
+                 "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c9",
+             },
          ]
 
          var promise = $.Deferred();
@@ -176,17 +188,18 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);
+          }, 1000);*/
       }
 
       API.startChat = function(Token, callback){
          $("#server-events").append("[SERVER]: Start chat with user Token " + Token + "<br>");
          // Start a chat, and server returns a list of messages
-         /*
+
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
          var promise = $.get(url, { userToken: Token })
-         handlePromise(promise, callback);*/
+         handlePromise(promise, callback);
 
+         /*
          var data = [
             {
                 "DisplayName": "Gomer Pyle :",
@@ -201,7 +214,7 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);
+          }, 1000);*/
       }
 
       API.sendMessage = function(Token, message, callback){
@@ -214,22 +227,22 @@
 
       API.leaveChat = function(Token, callback){
          $("#server-events").append("[SERVER]: Leave chat with user Token " + Token + "<br>");
-         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/LeaveChat';
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/LeaveChat';
          var promise = $.get(url, { userToken: Token })
-         handlePromise(promise, callback);*/
+         handlePromise(promise, callback);
       }
 
       var lastCheckedTime = new Date();
       API.getNewMessages = function(callback){
          $("#server-events").append("[SERVER]: Get new messages...<br>");
-         /*
+
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
          var promise = $.get(url, {lastChecked: lastCheckedTime.toISOString()});
 
          // current time as last checked time
          lastCheckedTime = new Date();
 
-         handlePromise(promise, callback);*/
+         handlePromise(promise, callback);
          /*
          var data = [
 
@@ -268,7 +281,7 @@
          $chatDock = $($.ChatApp.Templates.chatDockWrapperHTML);
 
          // create chat extend
-         chatExtend = $.ChatApp.View.createChatExtend();
+         chatExtend = $.ChatApp.View.createChatExtend({chatBoxes: chatBoxes});
          $chatDock.append(chatExtend.$el);
 
          chatWrap.append(chatSidebar.$el);
@@ -290,7 +303,7 @@
             return;
          }
 
-         chatExtend.onAddChat(user.Token);
+         chatExtend.onAddChat(user);
 
          chatBoxes[user.Token] = $.ChatApp.View.createChatBox(vent, user, options);
          $chatDock.find('.chat-extend-wrap').after(chatBoxes[user.Token].$el);
@@ -314,7 +327,6 @@
          delete chatBoxes[Token];
 
          chatExtend.onRemoveChat(Token);
-
       }
       API.loadFriendList = function(friends){
          chatSidebar.setFriendList(friends);
@@ -382,21 +394,26 @@
 "use strict";
 (function( $ ){
 
-   $.ChatApp.View.createChatExtend = function(vent, options){
+   $.ChatApp.View.createChatExtend = function(options){
    return $.ChatApp.View.createView({
       template: $.ChatApp.Templates.chatExtend,
       init: function(){
+         // have a reference to View's chatBoxes so we can access its functions
+         this.chatBoxes = options.chatBoxes;
          this.popover = this.$(".chat-extend-popover");
 
          // stack keep track of most recently opened chats
          this.openChats = [];
          this.closeChats = [];
 
+         // maps token to name
+         this.nameMapping = {};
+
          // this could be a dynamic value depending on the width of the window
          this.maxOpenChat = 3;
 
+         // close the popover when clicked outside
          $(document).click(function(event) {
-
             if(!$(event.target).closest('.chat-extend-popover').length) {
                if($('.chat-extend-popover').is(":visible")) {
                   $('.chat-extend-popover').removeClass('open');
@@ -414,12 +431,23 @@
       show: function(){
          this.$el.removeClass('hide');
       },
-
       reRender: function(){
          // rerender the list
+         this.popover.empty();
+         var that = this;
+         _.each(this.closeChats, function(Token){
+            var data = {
+               Token: Token,
+               DisplayName: that.nameMapping[Token]
+            }
+            that.popover.append($.ChatApp.Templates.chatExtendItem(data));
+         });
       },
-      OnChatExtendItemClick: function(){
-
+      OnChatExtendItemClick: function(evt){
+         var openToken = $(evt.target).data('token');
+         this.popover.toggleClass('open');
+         this.showChat(openToken);
+         this.chatBoxes[openToken].focus();
       },
       showChat: function(Token){
          // if the chat is in closeChats, open it
@@ -430,6 +458,7 @@
             this.showClosedChat(Token);
             this.closeChats.splice(index, 1);
          }
+         this.reRender();
       },
       hideMostRecentOpenChat: function(){
          // hide the most recently opened chat
@@ -443,7 +472,10 @@
          $(".chat-extend-wrap").after(chatbox);
          this.openChats.push(Token);
       },
-      onAddChat: function(Token){
+      onAddChat: function(user){
+         var Token = user.Token;
+         this.nameMapping[Token] = user.DisplayName;
+
          if (this.openChats.length >= this.maxOpenChat){
             // show the option panel
             this.show();
@@ -757,6 +789,8 @@ $.ChatApp.Templates.chatDockWrapperHTML = chatDockWrapperHTML;
 $.ChatApp.Templates.sideBarListItem = Handlebars.compile("<li data-token='{{UserToken}}' data-name='{{DisplayName}}'>{{DisplayName}}</li>");
 $.ChatApp.Templates.sideBar = Handlebars.compile(sideBarHTML);
 $.ChatApp.Templates.chatExtend = Handlebars.compile(chatExtendHTML);
+$.ChatApp.Templates.chatExtendItem = Handlebars.compile("<div class='chat-extend-item' data-token='{{Token}}'>{{DisplayName}}</div>");
+
 $.ChatApp.Templates.chatBox = Handlebars.compile(chatBoxHTML);
 $.ChatApp.Templates.chatBoxDialog = Handlebars.compile(chatBoxDialogHTML);
 
