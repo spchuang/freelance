@@ -21,6 +21,7 @@
   position: fixed;
   bottom: 0;
   right: 5px;
+  z-index: 9999;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;

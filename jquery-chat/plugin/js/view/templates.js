@@ -9,7 +9,7 @@ var sideBarHTML = '\
    <div class="chat-sidebar open">\
       <div class="header"><h3>Chat List</h3></div>\
       <div class="chat-list-container">\
-         <img class="loading-sign" src="plugin/img/ajax-loader.gif">\
+         <img class="loading-sign" src="{{loadingSign}}">\
          <ul class="chat-list">\
          </ul>\
       </div>\
@@ -29,7 +29,7 @@ var chatBoxHTML = '\
          </div>\
       </div>\
       <div class="chatbox-content">\
-         <img class="loading-sign" src="plugin/img/ajax-loader.gif">\
+         <img class="loading-sign" src="{{loadingSign}}">\
       </div>\
       <div class="chatbox-footer">\
          <textarea class="chatbox-input"></textarea>\
@@ -53,7 +53,7 @@ var chatBoxDialogHTML = '\
 $.ChatApp.Templates = {};
 $.ChatApp.Templates.chatWrapperHTML = chatWrapperHTML;
 $.ChatApp.Templates.chatDockWrapperHTML = chatDockWrapperHTML;
-$.ChatApp.Templates.sideBarListItem = Handlebars.compile("<li data-token='{{Token}}' data-name='{{DisplayName}}'>{{DisplayName}}</li>");
+$.ChatApp.Templates.sideBarListItem = Handlebars.compile("<li data-token='{{UserToken}}' data-name='{{DisplayName}}'>{{DisplayName}}</li>");
 $.ChatApp.Templates.sideBar = Handlebars.compile(sideBarHTML);
 $.ChatApp.Templates.chatBox = Handlebars.compile(chatBoxHTML);
 $.ChatApp.Templates.chatBoxDialog = Handlebars.compile(chatBoxDialogHTML);

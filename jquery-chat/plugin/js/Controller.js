@@ -25,7 +25,9 @@
    $.ChatApp.Controller = function(options){
       var vent; // shared event handler
       var model, view;
-      var pollingTime = 1000;
+
+      //default to 1000ms if it's not defined
+      var pollingTime = options.pollingInterval || 1000;
 
       var registerEvents = function(){
          vent.on('openUserChat', function(e, user){
@@ -35,7 +37,7 @@
             // send an open chat to model
             model.startChat(user.Token, {
                success: function(messages){
-                  console.log("WLKJSD:LF");
+                  // load messages
                   view.loadChatMessages(user.Token, messages);
 
                },
@@ -59,6 +61,7 @@
                success: function(){},
                error: function(){
                   // show error sending
+                  console.log("ERROR: can't send messages");
                }
             });
          });
@@ -82,7 +85,7 @@
 
          //set up model and view
          model = $.ChatApp.Model(vent, options);
-         view = $.ChatApp.View(vent);
+         view = $.ChatApp.View(vent, options);
 
          // get friend list
          model.getFriendList({

@@ -26,7 +26,9 @@
    $.ChatApp.Controller = function(options){
       var vent; // shared event handler
       var model, view;
-      var pollingTime = 1000;
+
+      //default to 1000ms if it's not defined
+      var pollingTime = options.pollingInterval || 1000;
 
       var registerEvents = function(){
          vent.on('openUserChat', function(e, user){
@@ -36,7 +38,7 @@
             // send an open chat to model
             model.startChat(user.Token, {
                success: function(messages){
-                  console.log("WLKJSD:LF");
+                  // load messages
                   view.loadChatMessages(user.Token, messages);
 
                },
@@ -60,6 +62,7 @@
                success: function(){},
                error: function(){
                   // show error sending
+                  console.log("ERROR: can't send messages");
                }
             });
          });
@@ -72,8 +75,6 @@
                   view.loadChatMessages(m.UserToken, m);
                });
 
-               // got a list of new messages
-               // add to chatboxes (open new chat boxes if necessary)
             }
          });
          setTimeout(startPolling, pollingTime);
@@ -85,7 +86,7 @@
 
          //set up model and view
          model = $.ChatApp.Model(vent, options);
-         view = $.ChatApp.View(vent);
+         view = $.ChatApp.View(vent, options);
 
          // get friend list
          model.getFriendList({
@@ -138,12 +139,12 @@
       // callback takes in {success, error}
       API.getFriendList = function(callback){
          $("#server-events").append("[SERVER]: Get friend list<br>");
-
+         /*
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
          handlePromise(promise, callback);
-         return;
-         /*var data = [
+         */
+         var data = [
              {
                  "IdField1": "Gomer",
                  "IdField2": "Pyle",
@@ -164,7 +165,7 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);*/
+          }, 1000);
       }
 
       API.startChat = function(Token, callback){
@@ -215,13 +216,13 @@
       API.getNewMessages = function(callback){
          $("#server-events").append("[SERVER]: Get new messages...<br>");
 
-         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
+         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
          var promise = $.post(url, {lastChecked: lastCheckedTime.toISOString()});
 
          // current time as last checked time
          lastCheckedTime = new Date();
 
-         handlePromise(promise, callback);
+         handlePromise(promise, callback);*/
       }
       return API;
    }
@@ -231,7 +232,7 @@
 "use strict";
 (function( $ ){
 
-   $.ChatApp.View = function(vent){
+   $.ChatApp.View = function(vent, options){
       var API = {};
       var $chatDock, chatSidebar;
       var chatBoxes = {};
@@ -239,7 +240,7 @@
       var init = function(){
          // insert chat DOM
          var chatWrap = $($.ChatApp.Templates.chatWrapperHTML);
-         chatSidebar = $.ChatApp.View.createChatSidebar(vent);
+         chatSidebar = $.ChatApp.View.createChatSidebar(vent, options);
          $chatDock = $($.ChatApp.Templates.chatDockWrapperHTML);
 
          chatWrap.append(chatSidebar.$el);
@@ -258,7 +259,7 @@
             return;
          }
 
-         chatBoxes[user.Token] = $.ChatApp.View.createChatBox(vent, user);
+         chatBoxes[user.Token] = $.ChatApp.View.createChatBox(vent, user, options);
          $chatDock.prepend(chatBoxes[user.Token].$el);
          chatBoxes[user.Token].onRender();
 
@@ -344,7 +345,7 @@
 "use strict";
 (function( $ ){
 
-   $.ChatApp.View.createChatSidebar = function(vent){
+   $.ChatApp.View.createChatSidebar = function(vent, options){
    return $.ChatApp.View.createView({
       template: $.ChatApp.Templates.sideBar,
       init: function(){
@@ -358,6 +359,11 @@
          "click .chat-list>li" : "onUserClick",
          "keyup .search-input" : "onSearchChange",
          "click .cancel-btn": "onCancelClick"
+      },
+      serializeData: function(){
+         return {
+            loadingSign: options.loadingSign
+         }
       },
       setFriendList: function(friends){
          this.friends = friends;
@@ -390,7 +396,7 @@
          var target = $(evt.target);
 
          vent.trigger('openUserChat', {
-            DisplayName: target.data('name'), 
+            DisplayName: target.data('name'),
             Token: target.data('token')
          });
       },
@@ -415,7 +421,7 @@
 "use strict";
 (function( $ ){
 
-   $.ChatApp.View.createChatBox = function(vent, user){
+   $.ChatApp.View.createChatBox = function(vent, user, options){
       return $.ChatApp.View.createView({
          template : $.ChatApp.Templates.chatBox,
          init: function(){
@@ -437,6 +443,7 @@
             return {
                DisplayName: user.DisplayName,
                Token: user.Token,
+               loadingSign: options.loadingSign
             }
          },
          addMessages: function(messages){
@@ -528,7 +535,7 @@
 
             if(key == ENTER_KEY){
                var message = this.input.val();
-               this.addMessage({MessageContent: message, DisplayName: 'Test'});
+               //this.addMessage({MessageContent: message, DisplayName: 'Test'});
                vent.trigger("sendMessage", this.user.Token, message);
                this.input.val("");
                evt.preventDefault();
@@ -552,7 +559,7 @@ var sideBarHTML = '\
    <div class="chat-sidebar open">\
       <div class="header"><h3>Chat List</h3></div>\
       <div class="chat-list-container">\
-         <img class="loading-sign" src="plugin/img/ajax-loader.gif">\
+         <img class="loading-sign" src="{{loadingSign}}">\
          <ul class="chat-list">\
          </ul>\
       </div>\
@@ -572,7 +579,7 @@ var chatBoxHTML = '\
          </div>\
       </div>\
       <div class="chatbox-content">\
-         <img class="loading-sign" src="plugin/img/ajax-loader.gif">\
+         <img class="loading-sign" src="{{loadingSign}}">\
       </div>\
       <div class="chatbox-footer">\
          <textarea class="chatbox-input"></textarea>\
@@ -596,7 +603,7 @@ var chatBoxDialogHTML = '\
 $.ChatApp.Templates = {};
 $.ChatApp.Templates.chatWrapperHTML = chatWrapperHTML;
 $.ChatApp.Templates.chatDockWrapperHTML = chatDockWrapperHTML;
-$.ChatApp.Templates.sideBarListItem = Handlebars.compile("<li data-token='{{Token}}' data-name='{{DisplayName}}'>{{DisplayName}}</li>");
+$.ChatApp.Templates.sideBarListItem = Handlebars.compile("<li data-token='{{UserToken}}' data-name='{{DisplayName}}'>{{DisplayName}}</li>");
 $.ChatApp.Templates.sideBar = Handlebars.compile(sideBarHTML);
 $.ChatApp.Templates.chatBox = Handlebars.compile(chatBoxHTML);
 $.ChatApp.Templates.chatBoxDialog = Handlebars.compile(chatBoxDialogHTML);

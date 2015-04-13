@@ -25,12 +25,12 @@
       // callback takes in {success, error}
       API.getFriendList = function(callback){
          $("#server-events").append("[SERVER]: Get friend list<br>");
-
+         /*
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
          handlePromise(promise, callback);
-         return;
-         /*var data = [
+         */
+         var data = [
              {
                  "IdField1": "Gomer",
                  "IdField2": "Pyle",
@@ -51,7 +51,7 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);*/
+          }, 1000);
       }
 
       API.startChat = function(Token, callback){
@@ -102,13 +102,13 @@
       API.getNewMessages = function(callback){
          $("#server-events").append("[SERVER]: Get new messages...<br>");
 
-         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
+         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
          var promise = $.post(url, {lastChecked: lastCheckedTime.toISOString()});
 
          // current time as last checked time
          lastCheckedTime = new Date();
 
-         handlePromise(promise, callback);
+         handlePromise(promise, callback);*/
       }
       return API;
    }

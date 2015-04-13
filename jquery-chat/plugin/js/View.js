@@ -1,7 +1,7 @@
 "use strict";
 (function( $ ){
 
-   $.ChatApp.View = function(vent){
+   $.ChatApp.View = function(vent, options){
       var API = {};
       var $chatDock, chatSidebar;
       var chatBoxes = {};
@@ -9,7 +9,7 @@
       var init = function(){
          // insert chat DOM
          var chatWrap = $($.ChatApp.Templates.chatWrapperHTML);
-         chatSidebar = $.ChatApp.View.createChatSidebar(vent);
+         chatSidebar = $.ChatApp.View.createChatSidebar(vent, options);
          $chatDock = $($.ChatApp.Templates.chatDockWrapperHTML);
 
          chatWrap.append(chatSidebar.$el);
@@ -28,7 +28,7 @@
             return;
          }
 
-         chatBoxes[user.Token] = $.ChatApp.View.createChatBox(vent, user);
+         chatBoxes[user.Token] = $.ChatApp.View.createChatBox(vent, user, options);
          $chatDock.prepend(chatBoxes[user.Token].$el);
          chatBoxes[user.Token].onRender();
 

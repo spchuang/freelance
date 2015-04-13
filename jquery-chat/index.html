@@ -12,7 +12,9 @@
   <script>
    $( document ).ready(function(){
       $.ChatApp.start({
-         baseUrl: "http://stage.lifewiregroup.com"
+         baseUrl: "http://stage.lifewiregroup.com",
+         loadingSign: "plugin/img/ajax-loader.gif",
+         pollingInterval: 1000
       })
    });
   </script>

@@ -1,7 +1,7 @@
 "use strict";
 (function( $ ){
 
-   $.ChatApp.View.createChatBox = function(vent, user){
+   $.ChatApp.View.createChatBox = function(vent, user, options){
       return $.ChatApp.View.createView({
          template : $.ChatApp.Templates.chatBox,
          init: function(){
@@ -23,6 +23,7 @@
             return {
                DisplayName: user.DisplayName,
                Token: user.Token,
+               loadingSign: options.loadingSign
             }
          },
          addMessages: function(messages){
@@ -114,7 +115,7 @@
 
             if(key == ENTER_KEY){
                var message = this.input.val();
-               this.addMessage({MessageContent: message, DisplayName: 'Test'});
+               //this.addMessage({MessageContent: message, DisplayName: 'Test'});
                vent.trigger("sendMessage", this.user.Token, message);
                this.input.val("");
                evt.preventDefault();

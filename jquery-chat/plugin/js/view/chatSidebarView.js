@@ -1,7 +1,7 @@
 "use strict";
 (function( $ ){
 
-   $.ChatApp.View.createChatSidebar = function(vent){
+   $.ChatApp.View.createChatSidebar = function(vent, options){
    return $.ChatApp.View.createView({
       template: $.ChatApp.Templates.sideBar,
       init: function(){
@@ -15,6 +15,11 @@
          "click .chat-list>li" : "onUserClick",
          "keyup .search-input" : "onSearchChange",
          "click .cancel-btn": "onCancelClick"
+      },
+      serializeData: function(){
+         return {
+            loadingSign: options.loadingSign
+         }
       },
       setFriendList: function(friends){
          this.friends = friends;
@@ -47,7 +52,7 @@
          var target = $(evt.target);
 
          vent.trigger('openUserChat', {
-            DisplayName: target.data('name'), 
+            DisplayName: target.data('name'),
             Token: target.data('token')
          });
       },
