@@ -39,6 +39,7 @@
 
             // add date column for new messages
             _.each(messages, function(m){
+               console.log(m);
                m.time = new Date(m.SentOn);
             });
 
