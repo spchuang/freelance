@@ -117,15 +117,11 @@
          handlePromise(promise, callback);
       }
 
-      var lastCheckedTime = new Date();
       API.getNewMessages = function(callback){
          $("#server-events").append("[SERVER]: Get new messages...<br>");
 
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
-         var promise = $.get(url, {lastChecked: lastCheckedTime.toISOString()});
-
-         // current time as last checked time
-         lastCheckedTime = new Date();
+         var promise = $.get(url);
 
          handlePromise(promise, callback);
 
