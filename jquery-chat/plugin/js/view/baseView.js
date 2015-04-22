@@ -28,11 +28,16 @@
             var func = that[val];
             var evtName = key.split(" ")[0];
             var selector = key.split(" ")[1];
-
+            
             // validate if funciton exists
             if(_.isFunction(func)){
                // attach function as event handler and maintain original scope
-               that.$el.on(evtName, selector, $.proxy(func, that));
+               if(selector){
+                  that.$el.on(evtName, selector, $.proxy(func, that));
+               } else {
+                  that.$el.on(evtName, $.proxy(func, that));
+               }
+               
             }else {
                console.log("[ERROR]: " + func + " is not a function");
             }

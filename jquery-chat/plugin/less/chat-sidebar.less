@@ -16,7 +16,7 @@
       width: @sidebar-width;
       height: @sidebar-header-height;
       line-height: @sidebar-header-height;
-      background-color: #3c3f47;
+      background-color: @header-color;
       opacity: 0.9;
       h3{
          display: inline-block;
@@ -60,7 +60,7 @@
          }
          li:hover{
             cursor: pointer;
-            background-color: #e9eaed;
+            background-color: @sidebar-hover-color;
          }
 
       }
@@ -84,7 +84,7 @@
          font-size: 12px;
          line-height: 15px;
          border: none;
-         background-color: #f4f4f4;
+         background-color: @sidebar-search-bg-color;
          color: #232727;
          .border-box;
       }
@@ -106,7 +106,7 @@
 
 .chat-sidebar.open{
    height: @sidebar-height;
-   background-color: #f4f4f4;
+   background-color: @sidebar-bg-color;
    .transition(ease-out height .2s);
    padding-bottom: 30px;
    border-left: 1px solid #bbbcc0;

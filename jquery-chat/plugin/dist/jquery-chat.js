@@ -1,5 +1,7 @@
-/*! jquery-chat - v0.1.0 - */
+/*! jquery-chat - v1.0.0 - */
 "use strict";
+
+
 (function( $ ){
    $.ChatApp = {};
 
@@ -20,11 +22,28 @@
       };
       return e;
    }
+   
+   $.ChatApp.notificationSound = function(url){
+      var s = {
+         audio: null,
+         init: function(){
+            this.audio = new Audio(url);
+
+            //this.audio.play();
+         },
+         play: function(){
+            this.audio.play();
+         }
+      };
+      s.init();
+      return s;
+   }
 
    // Controller
    $.ChatApp.Controller = function(options){
       var vent; // shared event handler
       var model, view;
+      var sound;
 
       //default to 1000ms if it's not defined
       var pollingTime = options.pollingInterval || 1000;
@@ -66,6 +85,16 @@
                }
             });
          });
+         
+         vent.on('playNotification', function(e){
+            sound.play();
+            flashTitle("New Messages");
+         });
+         
+         vent.on('chatBoxClicked', function(e){
+            // cancel the browser flash
+            cancelFlashTitle();
+         });
       }
 
       var i = 0;
@@ -95,6 +124,8 @@
       function init(){
          vent = getEventHandler();
          registerEvents();
+         
+         sound = $.ChatApp.notificationSound(options.notificationSound);
 
          //set up model and view
          model = $.ChatApp.Model(vent, options);
@@ -109,7 +140,8 @@
                console.log("ERROR: can't load friend list");
             }
          });
-
+         
+         
          // start polling
          startPolling();
       }
@@ -125,6 +157,8 @@
 })( jQuery);
 
 "use strict";
+
+
 (function( $ ){
 
    // Model
@@ -150,12 +184,12 @@
       // All get functions return a promise (waiting on server response)
       // callback takes in {success, error}
       API.getFriendList = function(callback){
-         $("#server-events").append("[SERVER]: Get friend list<br>");
-
+         
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
          handlePromise(promise, callback);
-
+         
+         
          /*
          var data = [
              {
@@ -190,6 +224,38 @@
                  "DisplayName": "Test 7",
                  "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c9",
              },
+             {
+                 "DisplayName": "Test 8",
+                 "UserToken": "5ab24a95-ca18-4566-ace7-17b1f0b514c8",
+             },
+             {
+                 "DisplayName": "Test 9",
+                 "UserToken": "5ab64a15-ca18-4566-ace7-17b1f0b514c9",
+             },
+             {
+                 "DisplayName": "Test 10",
+                 "UserToken": "5lb64a95-ca18-4566-ace7-17b1f0b514c8",
+             },
+             {
+                 "DisplayName": "Test 11",
+                 "UserToken": "5aj64a95-ca18-4566-ace7-17b1f0b514c9",
+             },
+             {
+                 "DisplayName": "Test 12",
+                 "UserToken": "5abn4a95-ca18-4566-ace7-17b1f0b514c8",
+             },
+             {
+                 "DisplayName": "Test 13",
+                 "UserToken": "5aba4a95-ca18-4566-ace7-17b1f0b514c9",
+             },
+             {
+                 "DisplayName": "Test 14",
+                 "UserToken": "5abs4a95-ca18-4566-ace7-17b1f0b514c8",
+             },
+             {
+                 "DisplayName": "Test 15",
+                 "UserToken": "5ab64f95-ca18-4566-ace7-17b1f0b514c9",
+             },
          ]
 
          var promise = $.Deferred();
@@ -203,13 +269,13 @@
       }
 
       API.startChat = function(Token, callback){
-         $("#server-events").append("[SERVER]: Start chat with user Token " + Token + "<br>");
          // Start a chat, and server returns a list of messages
-
+         
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
          var promise = $.get(url, { userToken: Token })
          handlePromise(promise, callback);
-
+         
+         
          /*
          var data = [
             {
@@ -229,23 +295,19 @@
       }
 
       API.sendMessage = function(data, callback){
-         $("#server-events").append("[SERVER]: Send message to user Token " + data.Token + "<br>");
-
+      
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SendChatMessage';
          var promise = $.post(url, {UserToken: data.Token, Message: data.Message});
          handlePromise(promise, callback);
       }
 
       API.leaveChat = function(Token, callback){
-         $("#server-events").append("[SERVER]: Leave chat with user Token " + Token + "<br>");
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/LeaveChat';
          var promise = $.get(url, { userToken: Token })
          handlePromise(promise, callback);
       }
 
       API.getNewMessages = function(callback){
-         $("#server-events").append("[SERVER]: Get new messages...<br>");
-
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
          var promise = $.get(url);
 
@@ -274,6 +336,7 @@
       var API = {};
       var $chatDock, chatSidebar, chatExtend;
       var chatBoxes = {};
+      var nameMapping = {};
 
       var init = function(){
          // insert chatdock and sidebar
@@ -282,7 +345,7 @@
          $chatDock = $($.ChatApp.Templates.chatDockWrapperHTML);
 
          // create chat extend
-         chatExtend = $.ChatApp.View.createChatExtend({chatBoxes: chatBoxes});
+         chatExtend = $.ChatApp.View.createChatExtend({chatBoxes: chatBoxes, nameMapping: nameMapping});
          $chatDock.append(chatExtend.$el);
 
          chatWrap.append(chatSidebar.$el);
@@ -313,14 +376,13 @@
       }
       API.loadChatMessages = function(Token, messages){
          if(_.isUndefined(chatBoxes[Token])){
-            // remove the " :" from message.DisplayName
-            var name = messages[0].DisplayName.replace(" :", "");
+         
             // open chat box
-            vent.trigger('openUserChat', {Token: Token, DisplayName: name});
+            vent.trigger('openUserChat', {Token: Token, DisplayName: nameMapping[Token]});
             return;
          }
 
-         chatBoxes[Token].addMessages(messages);
+         chatBoxes[Token].addMessages(messages, true);
       }
       API.closeChatWindow = function(Token){
          // only a "non-hidden" chat could by closed
@@ -329,7 +391,12 @@
 
          chatExtend.onRemoveChat(Token);
       }
+      
       API.loadFriendList = function(friends){
+         
+         _.each(friends, function(user){
+            nameMapping[user.UserToken] = user.DisplayName;
+         });
          chatSidebar.setFriendList(friends);
          chatSidebar.updateFriendList();
       }
@@ -338,6 +405,35 @@
 
 })( jQuery);
 
+(function () {
+
+var original = document.title;
+var timeout;
+
+window.flashTitle = function (newMsg, howManyTimes) {
+    function step() {
+        document.title = (document.title == original) ? newMsg : original;
+
+        
+        timeout = setTimeout(step, 1000);
+    };
+
+    howManyTimes = parseInt(howManyTimes);
+
+    if (isNaN(howManyTimes)) {
+        howManyTimes = 5;
+    };
+
+    cancelFlashTitle(timeout);
+    step();
+};
+
+window.cancelFlashTitle = function () {
+    clearTimeout(timeout);
+    document.title = original;
+};
+
+}());
 "use strict";
 (function( $ ){
 
@@ -368,11 +464,16 @@
             var func = that[val];
             var evtName = key.split(" ")[0];
             var selector = key.split(" ")[1];
-
+            
             // validate if funciton exists
             if(_.isFunction(func)){
                // attach function as event handler and maintain original scope
-               that.$el.on(evtName, selector, $.proxy(func, that));
+               if(selector){
+                  that.$el.on(evtName, selector, $.proxy(func, that));
+               } else {
+                  that.$el.on(evtName, $.proxy(func, that));
+               }
+               
             }else {
                console.log("[ERROR]: " + func + " is not a function");
             }
@@ -401,14 +502,12 @@
       init: function(){
          // have a reference to View's chatBoxes so we can access its functions
          this.chatBoxes = options.chatBoxes;
+         this.nameMapping = options.nameMapping;
          this.popover = this.$(".chat-extend-popover");
 
          // stack keep track of most recently opened chats
          this.openChats = [];
          this.closeChats = [];
-
-         // maps token to name
-         this.nameMapping = {};
 
          // this could be a dynamic value depending on the width of the window
          this.maxOpenChat = 3;
@@ -435,6 +534,15 @@
       reRender: function(){
          // rerender the list
          this.popover.empty();
+         
+         // update the width
+         if(this.closeChats.length < 10){
+             this.$el.css("width", "70px");
+         } else if(this.closeChats.length >= 10){
+             this.$el.css("width", "80px");
+         }
+         
+         this.$(".chat-extend-btn span").text(this.closeChats.length);
          var that = this;
          _.each(this.closeChats, function(Token){
             var data = {
@@ -603,6 +711,7 @@
             this.messagesDom = [];
          },
          events: {
+            "click" : "onChatBoxClick",
             "click .chatbox-header" : "onHeaderClick",
             "click .close-btn" : "onCloseClick",
             "keydown .chatbox-input" : "onKeyDown",
@@ -616,9 +725,12 @@
          },
          loadInitialMessages: function(messages){
             this.isLoaded = true;
-            this.addMessages(messages);
+            this.addMessages(messages, false);
          },
-         addMessages: function(messages){
+         onChatBoxClick: function(){
+            vent.trigger("chatBoxClicked");
+         },
+         addMessages: function(messages, playSound){
             var that = this;
             // ignore all messages until the chat box is loaded first
             if(!this.isLoaded){
@@ -678,6 +790,12 @@
                   }
                }
             }
+            
+            // Calculate number of new messages
+            var numNewMessages = newMessagesList.length - this.messages.length;
+            if(playSound && numNewMessages > 0) {
+                vent.trigger('playNotification');
+            }
 
             this.messages = newMessagesList;
 
@@ -685,6 +803,7 @@
             this.content.slimScroll({
                scrollTo: this.content[0].scrollHeight
             });
+            
          },
          createMessage: function(message){
             return $($.ChatApp.Templates.chatBoxDialog(_.extend(message,{
@@ -759,7 +878,7 @@ var chatDockWrapperHTML = '<div class="chat-dock-wrapper"></div>';
 var chatExtendHTML = '\
    <div class="chat-extend-wrap hide">\
       <div class="chat-extend-popover"></div>\
-      <div class="chat-extend-btn"><a href="#">More</a></div>\
+      <div class="chat-extend-btn"><a href="#">More (<span></span>)</a></div>\
    </div>';
 
 var chatBoxHTML = '\

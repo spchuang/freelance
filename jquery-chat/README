@@ -30,3 +30,17 @@ Modifying style
 ------------------
 - Play around with variables in less/main.less
 - compile less with "grunt compile"
+- For example, to change the background color of the chatbox, modify the value for "@chatbox-bg-color," then recompile the css.
+
+
+Overview 
+------------------
+The chat plugin is serparated into controller, model and view. 
+Controller
+- Setups up the chat plugin. Initializes the model object and the view object and coordinate between the two's interaction through a shared event handler. The event handler is a simple publish/subscriber object shared between the View and the Model.
+
+View
+- manages all the user interface (the sidebar and the chatboxes). Each UI component is created and organized through the baseview primitive that simplifies the UI interaction and events handling. The HTML is rendered through the Handlebar templating library, which is defined in view/templates.js. 
+
+Model
+- The only object that communicates with the server APIs. Generally, what happens is an event occured in the some view, which triggers an event. Then a callback defined in the controller would be triggered, and sends a request to the Model and depending on the response triggers some function in the view.

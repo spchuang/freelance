@@ -5,6 +5,7 @@
       var API = {};
       var $chatDock, chatSidebar, chatExtend;
       var chatBoxes = {};
+      var nameMapping = {};
 
       var init = function(){
          // insert chatdock and sidebar
@@ -13,7 +14,7 @@
          $chatDock = $($.ChatApp.Templates.chatDockWrapperHTML);
 
          // create chat extend
-         chatExtend = $.ChatApp.View.createChatExtend({chatBoxes: chatBoxes});
+         chatExtend = $.ChatApp.View.createChatExtend({chatBoxes: chatBoxes, nameMapping: nameMapping});
          $chatDock.append(chatExtend.$el);
 
          chatWrap.append(chatSidebar.$el);
@@ -44,14 +45,13 @@
       }
       API.loadChatMessages = function(Token, messages){
          if(_.isUndefined(chatBoxes[Token])){
-            // remove the " :" from message.DisplayName
-            var name = messages[0].DisplayName.replace(" :", "");
+         
             // open chat box
-            vent.trigger('openUserChat', {Token: Token, DisplayName: name});
+            vent.trigger('openUserChat', {Token: Token, DisplayName: nameMapping[Token]});
             return;
          }
 
-         chatBoxes[Token].addMessages(messages);
+         chatBoxes[Token].addMessages(messages, true);
       }
       API.closeChatWindow = function(Token){
          // only a "non-hidden" chat could by closed
@@ -60,7 +60,12 @@
 
          chatExtend.onRemoveChat(Token);
       }
+      
       API.loadFriendList = function(friends){
+         
+         _.each(friends, function(user){
+            nameMapping[user.UserToken] = user.DisplayName;
+         });
          chatSidebar.setFriendList(friends);
          chatSidebar.updateFriendList();
       }

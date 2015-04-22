@@ -15,6 +15,7 @@
             this.messagesDom = [];
          },
          events: {
+            "click" : "onChatBoxClick",
             "click .chatbox-header" : "onHeaderClick",
             "click .close-btn" : "onCloseClick",
             "keydown .chatbox-input" : "onKeyDown",
@@ -28,9 +29,12 @@
          },
          loadInitialMessages: function(messages){
             this.isLoaded = true;
-            this.addMessages(messages);
+            this.addMessages(messages, false);
          },
-         addMessages: function(messages){
+         onChatBoxClick: function(){
+            vent.trigger("chatBoxClicked");
+         },
+         addMessages: function(messages, playSound){
             var that = this;
             // ignore all messages until the chat box is loaded first
             if(!this.isLoaded){
@@ -90,6 +94,12 @@
                   }
                }
             }
+            
+            // Calculate number of new messages
+            var numNewMessages = newMessagesList.length - this.messages.length;
+            if(playSound && numNewMessages > 0) {
+                vent.trigger('playNotification');
+            }
 
             this.messages = newMessagesList;
 
@@ -97,6 +107,7 @@
             this.content.slimScroll({
                scrollTo: this.content[0].scrollHeight
             });
+            
          },
          createMessage: function(message){
             return $($.ChatApp.Templates.chatBoxDialog(_.extend(message,{

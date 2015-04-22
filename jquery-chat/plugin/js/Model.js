@@ -1,4 +1,6 @@
 "use strict";
+
+
 (function( $ ){
 
    // Model
@@ -24,12 +26,12 @@
       // All get functions return a promise (waiting on server response)
       // callback takes in {success, error}
       API.getFriendList = function(callback){
-         $("#server-events").append("[SERVER]: Get friend list<br>");
-
+         
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
          handlePromise(promise, callback);
-
+         
+         
          /*
          var data = [
              {
@@ -64,6 +66,38 @@
                  "DisplayName": "Test 7",
                  "UserToken": "5ab64a95-ca18-4566-ace7-17b1f0b514c9",
              },
+             {
+                 "DisplayName": "Test 8",
+                 "UserToken": "5ab24a95-ca18-4566-ace7-17b1f0b514c8",
+             },
+             {
+                 "DisplayName": "Test 9",
+                 "UserToken": "5ab64a15-ca18-4566-ace7-17b1f0b514c9",
+             },
+             {
+                 "DisplayName": "Test 10",
+                 "UserToken": "5lb64a95-ca18-4566-ace7-17b1f0b514c8",
+             },
+             {
+                 "DisplayName": "Test 11",
+                 "UserToken": "5aj64a95-ca18-4566-ace7-17b1f0b514c9",
+             },
+             {
+                 "DisplayName": "Test 12",
+                 "UserToken": "5abn4a95-ca18-4566-ace7-17b1f0b514c8",
+             },
+             {
+                 "DisplayName": "Test 13",
+                 "UserToken": "5aba4a95-ca18-4566-ace7-17b1f0b514c9",
+             },
+             {
+                 "DisplayName": "Test 14",
+                 "UserToken": "5abs4a95-ca18-4566-ace7-17b1f0b514c8",
+             },
+             {
+                 "DisplayName": "Test 15",
+                 "UserToken": "5ab64f95-ca18-4566-ace7-17b1f0b514c9",
+             },
          ]
 
          var promise = $.Deferred();
@@ -77,13 +111,13 @@
       }
 
       API.startChat = function(Token, callback){
-         $("#server-events").append("[SERVER]: Start chat with user Token " + Token + "<br>");
          // Start a chat, and server returns a list of messages
-
+         
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
          var promise = $.get(url, { userToken: Token })
          handlePromise(promise, callback);
-
+         
+         
          /*
          var data = [
             {
@@ -103,23 +137,19 @@
       }
 
       API.sendMessage = function(data, callback){
-         $("#server-events").append("[SERVER]: Send message to user Token " + data.Token + "<br>");
-
+      
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SendChatMessage';
          var promise = $.post(url, {UserToken: data.Token, Message: data.Message});
          handlePromise(promise, callback);
       }
 
       API.leaveChat = function(Token, callback){
-         $("#server-events").append("[SERVER]: Leave chat with user Token " + Token + "<br>");
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/LeaveChat';
          var promise = $.get(url, { userToken: Token })
          handlePromise(promise, callback);
       }
 
       API.getNewMessages = function(callback){
-         $("#server-events").append("[SERVER]: Get new messages...<br>");
-
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
          var promise = $.get(url);
 

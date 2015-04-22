@@ -22,7 +22,7 @@ var chatDockWrapperHTML = '<div class="chat-dock-wrapper"></div>';
 var chatExtendHTML = '\
    <div class="chat-extend-wrap hide">\
       <div class="chat-extend-popover"></div>\
-      <div class="chat-extend-btn"><a href="#">More</a></div>\
+      <div class="chat-extend-btn"><a href="#">More (<span></span>)</a></div>\
    </div>';
 
 var chatBoxHTML = '\

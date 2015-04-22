@@ -1,4 +1,6 @@
 "use strict";
+
+
 (function( $ ){
    $.ChatApp = {};
 
@@ -19,11 +21,28 @@
       };
       return e;
    }
+   
+   $.ChatApp.notificationSound = function(url){
+      var s = {
+         audio: null,
+         init: function(){
+            this.audio = new Audio(url);
+
+            //this.audio.play();
+         },
+         play: function(){
+            this.audio.play();
+         }
+      };
+      s.init();
+      return s;
+   }
 
    // Controller
    $.ChatApp.Controller = function(options){
       var vent; // shared event handler
       var model, view;
+      var sound;
 
       //default to 1000ms if it's not defined
       var pollingTime = options.pollingInterval || 1000;
@@ -65,6 +84,16 @@
                }
             });
          });
+         
+         vent.on('playNotification', function(e){
+            sound.play();
+            flashTitle("New Messages");
+         });
+         
+         vent.on('chatBoxClicked', function(e){
+            // cancel the browser flash
+            cancelFlashTitle();
+         });
       }
 
       var i = 0;
@@ -94,6 +123,8 @@
       function init(){
          vent = getEventHandler();
          registerEvents();
+         
+         sound = $.ChatApp.notificationSound(options.notificationSound);
 
          //set up model and view
          model = $.ChatApp.Model(vent, options);
@@ -108,7 +139,8 @@
                console.log("ERROR: can't load friend list");
             }
          });
-
+         
+         
          // start polling
          startPolling();
       }

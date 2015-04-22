@@ -7,14 +7,12 @@
       init: function(){
          // have a reference to View's chatBoxes so we can access its functions
          this.chatBoxes = options.chatBoxes;
+         this.nameMapping = options.nameMapping;
          this.popover = this.$(".chat-extend-popover");
 
          // stack keep track of most recently opened chats
          this.openChats = [];
          this.closeChats = [];
-
-         // maps token to name
-         this.nameMapping = {};
 
          // this could be a dynamic value depending on the width of the window
          this.maxOpenChat = 3;
@@ -41,6 +39,15 @@
       reRender: function(){
          // rerender the list
          this.popover.empty();
+         
+         // update the width
+         if(this.closeChats.length < 10){
+             this.$el.css("width", "70px");
+         } else if(this.closeChats.length >= 10){
+             this.$el.css("width", "80px");
+         }
+         
+         this.$(".chat-extend-btn span").text(this.closeChats.length);
          var that = this;
          _.each(this.closeChats, function(Token){
             var data = {

@@ -1,7 +1,7 @@
 {
   "name": "jquery-chat",
-  "description": "Jquery Faceboo/Google style chat",
-  "version": "0.1.0",
+  "description": "Jquery Facebook/Google style chat",
+  "version": "1.0.0",
   "peerDependencies": {
     "jQuery": "2.0.3",
     "handlebars" : "3.0.0"
