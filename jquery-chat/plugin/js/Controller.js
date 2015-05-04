@@ -49,6 +49,7 @@
 
       var registerEvents = function(){
          vent.on('openUserChat', function(e, user){
+  
             // open a new chat window (which is default in loading state)
             var chatBox = view.openChatWindow(user);
 
@@ -94,6 +95,24 @@
             // cancel the browser flash
             cancelFlashTitle();
          });
+         
+         vent.on('updateWindowStatuses', function(e, statuses) {
+            /*
+                Update under the following circumstances
+                - open new chat
+                - minimize/expand chat window
+                - click on a chat in extend
+                - close chat
+                
+                Array(statues) => {
+                    UserToken
+                    Minimized
+                    DisplayName
+                }
+            */
+           model.updateWindowStatuses(statuses);
+           //console.log(JSON.stringify(view.deserializeWindowStatuses()));
+         });
       }
 
       var i = 0;
@@ -130,9 +149,20 @@
          model = $.ChatApp.Model(vent, options);
          view = $.ChatApp.View(vent, options);
 
-         // get friend list
+         // get friend list & retrieve window statuses
          model.getFriendList({
             success: function(friends){
+            
+                // get window statuses
+                model.getWindowStatuses({
+                    success: function(windowStatuses) {
+                        view.loadWindowStatuses(windowStatuses);
+                    },
+                    error: function(){
+                        console.log("ERROR: can't load window statuses");
+                    }
+                });
+            
                view.loadFriendList(friends);
             },
             error: function(){
@@ -149,6 +179,7 @@
 
    $.ChatApp.start = function(options){
       options = options || {};
+      options.maxOpenChat = options.maxOpenChat || 3;
       var c = $.ChatApp.Controller(options);
       return c;
    }

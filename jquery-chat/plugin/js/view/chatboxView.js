@@ -13,6 +13,8 @@
             this.isLoaded = false;
             this.messages = [];
             this.messagesDom = [];
+            
+            
          },
          events: {
             "click" : "onChatBoxClick",
@@ -26,6 +28,9 @@
                Token: user.Token,
                loadingSign: options.loadingSign
             }
+         },
+         isMinimized: function(){
+           return !this.$el.hasClass('open');
          },
          loadInitialMessages: function(messages){
             this.isLoaded = true;
@@ -123,9 +128,16 @@
                height: this.content.height()
             });
             this.focus();
+            
+            // set initial window minimize state
+            if (user.Minimized == true) {
+               this.$el.removeClass('open');
+            }
+            
          },
          onHeaderClick: function(){
             this.$el.toggleClass('open');
+            vent.trigger('updateWindowStatuses');
          },
          onCloseClick: function(evt){
             // dispose timeago to avoid memory leak
@@ -135,6 +147,7 @@
 
             vent.trigger("closeUserChat", this.user.Token);
             evt.stopPropagation();
+            vent.trigger('updateWindowStatuses');
          },
          onKeyDown: function(evt){
             var key = evt.keyCode || evt.which,

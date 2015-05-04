@@ -14,7 +14,11 @@
          $chatDock = $($.ChatApp.Templates.chatDockWrapperHTML);
 
          // create chat extend
-         chatExtend = $.ChatApp.View.createChatExtend({chatBoxes: chatBoxes, nameMapping: nameMapping});
+         chatExtend = $.ChatApp.View.createChatExtend(vent, {
+            chatBoxes: chatBoxes, 
+            nameMapping: nameMapping, 
+            maxOpenChat: options.maxOpenChat
+         });
          $chatDock.append(chatExtend.$el);
 
          chatWrap.append(chatSidebar.$el);
@@ -69,6 +73,49 @@
          chatSidebar.setFriendList(friends);
          chatSidebar.updateFriendList();
       }
+      
+      API.loadWindowStatuses = function(windowStatuses) {
+         //  load in correct order
+         _.each(windowStatuses, function(w) {
+            vent.trigger('openUserChat', {
+               DisplayName: w.DisplayName,
+               Token: w.UserToken,
+               Minimized: w.Minimized
+            });
+         });
+      }
+      
+      // return an array of window statuses
+      API.deserializeWindowStatuses = function(){
+         // the order : (0 ~ openChats-2), (closeChats), (openChats-1)
+         var s = [];
+         for(var i = 0; i < chatExtend.openChats.length-1; i++){
+            var token = chatExtend.openChats[i];
+            s.push({
+               DisplayName: nameMapping[token],
+               UserToken: token,
+               Minimized : chatBoxes[token].isMinimized()
+            });
+         }
+         
+         _.each(chatExtend.closeChats, function(token){
+            s.push({
+               DisplayName: nameMapping[token],
+               UserToken: token,
+               Minimized : chatBoxes[token].isMinimized()
+            })
+         });
+         
+         var token = _.last(chatExtend.openChats);
+         s.push({
+            DisplayName: nameMapping[token],
+            UserToken: token,
+            Minimized : chatBoxes[token].isMinimized()
+         });
+         
+         return s;
+      }
+      
       return API;
    }
 

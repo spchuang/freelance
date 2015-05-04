@@ -1,7 +1,7 @@
 "use strict";
 (function( $ ){
 
-   $.ChatApp.View.createChatExtend = function(options){
+   $.ChatApp.View.createChatExtend = function(vent, options){
    return $.ChatApp.View.createView({
       template: $.ChatApp.Templates.chatExtend,
       init: function(){
@@ -15,7 +15,7 @@
          this.closeChats = [];
 
          // this could be a dynamic value depending on the width of the window
-         this.maxOpenChat = 3;
+         this.maxOpenChat = options.maxOpenChat;
 
          // close the popover when clicked outside
          $(document).click(function(event) {
@@ -62,6 +62,7 @@
          this.popover.toggleClass('open');
          this.showChat(openToken);
          this.chatBoxes[openToken].focus();
+         vent.trigger('updateWindowStatuses');
       },
       showChat: function(Token){
          // if the chat is in closeChats, open it

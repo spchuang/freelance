@@ -54,6 +54,7 @@
             DisplayName: target.data('name'),
             Token: target.data('token')
          });
+         vent.trigger('updateWindowStatuses');
       },
       onSearchChange: function(evt){
          // show cancel button

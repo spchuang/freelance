@@ -50,6 +50,7 @@
 
       var registerEvents = function(){
          vent.on('openUserChat', function(e, user){
+  
             // open a new chat window (which is default in loading state)
             var chatBox = view.openChatWindow(user);
 
@@ -95,6 +96,24 @@
             // cancel the browser flash
             cancelFlashTitle();
          });
+         
+         vent.on('updateWindowStatuses', function(e, statuses) {
+            /*
+                Update under the following circumstances
+                - open new chat
+                - minimize/expand chat window
+                - click on a chat in extend
+                - close chat
+                
+                Array(statues) => {
+                    UserToken
+                    Minimized
+                    DisplayName
+                }
+            */
+           model.updateWindowStatuses(statuses);
+           //console.log(JSON.stringify(view.deserializeWindowStatuses()));
+         });
       }
 
       var i = 0;
@@ -131,9 +150,20 @@
          model = $.ChatApp.Model(vent, options);
          view = $.ChatApp.View(vent, options);
 
-         // get friend list
+         // get friend list & retrieve window statuses
          model.getFriendList({
             success: function(friends){
+            
+                // get window statuses
+                model.getWindowStatuses({
+                    success: function(windowStatuses) {
+                        view.loadWindowStatuses(windowStatuses);
+                    },
+                    error: function(){
+                        console.log("ERROR: can't load window statuses");
+                    }
+                });
+            
                view.loadFriendList(friends);
             },
             error: function(){
@@ -150,6 +180,7 @@
 
    $.ChatApp.start = function(options){
       options = options || {};
+      options.maxOpenChat = options.maxOpenChat || 3;
       var c = $.ChatApp.Controller(options);
       return c;
    }
@@ -184,7 +215,7 @@
       // All get functions return a promise (waiting on server response)
       // callback takes in {success, error}
       API.getFriendList = function(callback){
-         
+      
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
          handlePromise(promise, callback);
@@ -275,8 +306,8 @@
          var promise = $.get(url, { userToken: Token })
          handlePromise(promise, callback);
          
-         
          /*
+         
          var data = [
             {
                 "DisplayName": "Gomer Pyle :",
@@ -324,6 +355,30 @@
              promise.resolve(data);
           }, 1000);*/
       }
+      
+      API.getWindowStatuses = function(callback){
+          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/RetrieveWindowStatuses';
+          var promise = $.get(url);
+          
+          handlePromise(promise, callback);
+          
+          /*var data =[{"DisplayName":"Test 2","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c4","Minimized":true},{"DisplayName":"Test 3","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c5","Minimized":false},{"DisplayName":"Test 9","UserToken":"5ab64a15-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 7","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 11","UserToken":"5aj64a95-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 10","UserToken":"5lb64a95-ca18-4566-ace7-17b1f0b514c8","Minimized":false}];
+         var promise = $.Deferred();
+         handlePromise(promise, callback);
+         
+         // delay
+         setTimeout(
+            function(){
+               promise.resolve(data);
+         }, 0);*/
+          
+      }
+      
+      API.updateWindowStatuses = function(statuses, callback){ 
+          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SaveWindowStatuses';
+          var promise = $.post(url, {statuses: statuses});
+          handlePromie(promise, callback);
+      }
       return API;
    }
 
@@ -345,7 +400,11 @@
          $chatDock = $($.ChatApp.Templates.chatDockWrapperHTML);
 
          // create chat extend
-         chatExtend = $.ChatApp.View.createChatExtend({chatBoxes: chatBoxes, nameMapping: nameMapping});
+         chatExtend = $.ChatApp.View.createChatExtend(vent, {
+            chatBoxes: chatBoxes, 
+            nameMapping: nameMapping, 
+            maxOpenChat: options.maxOpenChat
+         });
          $chatDock.append(chatExtend.$el);
 
          chatWrap.append(chatSidebar.$el);
@@ -400,6 +459,49 @@
          chatSidebar.setFriendList(friends);
          chatSidebar.updateFriendList();
       }
+      
+      API.loadWindowStatuses = function(windowStatuses) {
+         //  load in correct order
+         _.each(windowStatuses, function(w) {
+            vent.trigger('openUserChat', {
+               DisplayName: w.DisplayName,
+               Token: w.UserToken,
+               Minimized: w.Minimized
+            });
+         });
+      }
+      
+      // return an array of window statuses
+      API.deserializeWindowStatuses = function(){
+         // the order : (0 ~ openChats-2), (closeChats), (openChats-1)
+         var s = [];
+         for(var i = 0; i < chatExtend.openChats.length-1; i++){
+            var token = chatExtend.openChats[i];
+            s.push({
+               DisplayName: nameMapping[token],
+               UserToken: token,
+               Minimized : chatBoxes[token].isMinimized()
+            });
+         }
+         
+         _.each(chatExtend.closeChats, function(token){
+            s.push({
+               DisplayName: nameMapping[token],
+               UserToken: token,
+               Minimized : chatBoxes[token].isMinimized()
+            })
+         });
+         
+         var token = _.last(chatExtend.openChats);
+         s.push({
+            DisplayName: nameMapping[token],
+            UserToken: token,
+            Minimized : chatBoxes[token].isMinimized()
+         });
+         
+         return s;
+      }
+      
       return API;
    }
 
@@ -496,7 +598,7 @@ window.cancelFlashTitle = function () {
 "use strict";
 (function( $ ){
 
-   $.ChatApp.View.createChatExtend = function(options){
+   $.ChatApp.View.createChatExtend = function(vent, options){
    return $.ChatApp.View.createView({
       template: $.ChatApp.Templates.chatExtend,
       init: function(){
@@ -510,7 +612,7 @@ window.cancelFlashTitle = function () {
          this.closeChats = [];
 
          // this could be a dynamic value depending on the width of the window
-         this.maxOpenChat = 3;
+         this.maxOpenChat = options.maxOpenChat;
 
          // close the popover when clicked outside
          $(document).click(function(event) {
@@ -557,6 +659,7 @@ window.cancelFlashTitle = function () {
          this.popover.toggleClass('open');
          this.showChat(openToken);
          this.chatBoxes[openToken].focus();
+         vent.trigger('updateWindowStatuses');
       },
       showChat: function(Token){
          // if the chat is in closeChats, open it
@@ -675,6 +778,7 @@ window.cancelFlashTitle = function () {
             DisplayName: target.data('name'),
             Token: target.data('token')
          });
+         vent.trigger('updateWindowStatuses');
       },
       onSearchChange: function(evt){
          // show cancel button
@@ -709,6 +813,8 @@ window.cancelFlashTitle = function () {
             this.isLoaded = false;
             this.messages = [];
             this.messagesDom = [];
+            
+            
          },
          events: {
             "click" : "onChatBoxClick",
@@ -722,6 +828,9 @@ window.cancelFlashTitle = function () {
                Token: user.Token,
                loadingSign: options.loadingSign
             }
+         },
+         isMinimized: function(){
+           return !this.$el.hasClass('open');
          },
          loadInitialMessages: function(messages){
             this.isLoaded = true;
@@ -819,9 +928,16 @@ window.cancelFlashTitle = function () {
                height: this.content.height()
             });
             this.focus();
+            
+            // set initial window minimize state
+            if (user.Minimized == true) {
+               this.$el.removeClass('open');
+            }
+            
          },
          onHeaderClick: function(){
             this.$el.toggleClass('open');
+            vent.trigger('updateWindowStatuses');
          },
          onCloseClick: function(evt){
             // dispose timeago to avoid memory leak
@@ -831,6 +947,7 @@ window.cancelFlashTitle = function () {
 
             vent.trigger("closeUserChat", this.user.Token);
             evt.stopPropagation();
+            vent.trigger('updateWindowStatuses');
          },
          onKeyDown: function(evt){
             var key = evt.keyCode || evt.which,
