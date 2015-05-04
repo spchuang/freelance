@@ -957,8 +957,9 @@ window.cancelFlashTitle = function () {
             })
 
             vent.trigger("closeUserChat", this.user.Token);
-            evt.stopPropagation();
+
             vent.trigger('updateWindowStatuses');
+            evt.stopPropagation();
          },
          onKeyDown: function(evt){
             var key = evt.keyCode || evt.which,
