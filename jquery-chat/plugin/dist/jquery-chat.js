@@ -50,7 +50,6 @@
 
       var registerEvents = function(){
          vent.on('openUserChat', function(e, user){
-  
             // open a new chat window (which is default in loading state)
             var chatBox = view.openChatWindow(user);
 
@@ -69,12 +68,15 @@
          })
 
          vent.on('closeUserChat', function(e, Token){
+          //vent.trigger('updateWindowStatuses');
             view.closeChatWindow(Token);
+           
             model.leaveChat(Token, {
                error: function(){
                   console.log("ERROR: can't close user chat");
                }
             });
+            
          });
 
          vent.on('sendMessage', function(e, data){
@@ -111,10 +113,9 @@
                     DisplayName
                 }
             */
-            
+
             var windowStatuses = view.deserializeWindowStatuses();
             model.updateWindowStatuses(windowStatuses);
-           //console.log(JSON.stringify());
          });
       }
 
@@ -218,12 +219,12 @@
       // callback takes in {success, error}
       API.getFriendList = function(callback){
       
-         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
+         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
-         handlePromise(promise, callback);
+         handlePromise(promise, callback);*/
          
          
-         /*
+         
          var data = [
              {
                  "DisplayName": "Gomer Pyle",
@@ -298,17 +299,17 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);*/
+          }, 1000);
       }
 
       API.startChat = function(Token, callback){
          // Start a chat, and server returns a list of messages
-         
+         /*
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
          var promise = $.get(url, { userToken: Token })
-         handlePromise(promise, callback);
+         handlePromise(promise, callback);*/
          
-         /*
+         
          
          var data = [
             {
@@ -324,7 +325,7 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);*/
+          }, 1000);
       }
 
       API.sendMessage = function(data, callback){
@@ -341,10 +342,10 @@
       }
 
       API.getNewMessages = function(callback){
-         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
+         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
          var promise = $.get(url);
 
-         handlePromise(promise, callback);
+         handlePromise(promise, callback);*/
 
          /*
          var data = [{"DisplayName":"Me :","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c2","Direction":1,"Interaction":1,"Message":"Sam Chuang wants to talk with you.","SentOn":"2015-04-13T17:44:26.047Z"}];
@@ -377,7 +378,7 @@
       }
       
       API.updateWindowStatuses = function(windowStatuses, callback){ 
-          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SaveWindowStatuses';
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SaveWindowStatuses';
           
           var promise = $.ajax({
              url: url,
@@ -387,8 +388,7 @@
              dataType: 'json'
          });
           
-          //var promise = $.post(url, );
-          handlePromie(promise, callback);
+         handlePromise(promise, callback);
       }
       return API;
    }
@@ -485,6 +485,7 @@
       // return an array of window statuses
       API.deserializeWindowStatuses = function(){
          // the order : (0 ~ openChats-2), (closeChats), (openChats-1)
+
          var s = [];
          for(var i = 0; i < chatExtend.openChats.length-1; i++){
             var token = chatExtend.openChats[i];
@@ -504,11 +505,13 @@
          });
          
          var token = _.last(chatExtend.openChats);
-         s.push({
-            DisplayName: nameMapping[token],
-            UserToken: token,
-            Minimized : chatBoxes[token].isMinimized()
-         });
+         if (token) {
+            s.push({
+               DisplayName: nameMapping[token],
+               UserToken: token,
+               Minimized : chatBoxes[token].isMinimized()
+            });
+         }
          
          return s;
       }
@@ -957,8 +960,8 @@ window.cancelFlashTitle = function () {
             })
 
             vent.trigger("closeUserChat", this.user.Token);
-
             vent.trigger('updateWindowStatuses');
+            
             evt.stopPropagation();
          },
          onKeyDown: function(evt){

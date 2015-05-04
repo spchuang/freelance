@@ -146,8 +146,8 @@
             })
 
             vent.trigger("closeUserChat", this.user.Token);
-
             vent.trigger('updateWindowStatuses');
+            
             evt.stopPropagation();
          },
          onKeyDown: function(evt){

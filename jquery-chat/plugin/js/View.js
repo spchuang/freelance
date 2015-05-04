@@ -88,6 +88,7 @@
       // return an array of window statuses
       API.deserializeWindowStatuses = function(){
          // the order : (0 ~ openChats-2), (closeChats), (openChats-1)
+
          var s = [];
          for(var i = 0; i < chatExtend.openChats.length-1; i++){
             var token = chatExtend.openChats[i];
@@ -107,11 +108,13 @@
          });
          
          var token = _.last(chatExtend.openChats);
-         s.push({
-            DisplayName: nameMapping[token],
-            UserToken: token,
-            Minimized : chatBoxes[token].isMinimized()
-         });
+         if (token) {
+            s.push({
+               DisplayName: nameMapping[token],
+               UserToken: token,
+               Minimized : chatBoxes[token].isMinimized()
+            });
+         }
          
          return s;
       }

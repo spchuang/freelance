@@ -49,7 +49,6 @@
 
       var registerEvents = function(){
          vent.on('openUserChat', function(e, user){
-  
             // open a new chat window (which is default in loading state)
             var chatBox = view.openChatWindow(user);
 
@@ -68,12 +67,15 @@
          })
 
          vent.on('closeUserChat', function(e, Token){
+          //vent.trigger('updateWindowStatuses');
             view.closeChatWindow(Token);
+           
             model.leaveChat(Token, {
                error: function(){
                   console.log("ERROR: can't close user chat");
                }
             });
+            
          });
 
          vent.on('sendMessage', function(e, data){
@@ -110,10 +112,9 @@
                     DisplayName
                 }
             */
-            
+
             var windowStatuses = view.deserializeWindowStatuses();
             model.updateWindowStatuses(windowStatuses);
-           //console.log(JSON.stringify());
          });
       }
 
