@@ -111,8 +111,10 @@
                     DisplayName
                 }
             */
-           model.updateWindowStatuses(statuses);
-           //console.log(JSON.stringify(view.deserializeWindowStatuses()));
+            
+            var windowStatuses = view.deserializeWindowStatuses();
+            model.updateWindowStatuses(windowStatuses);
+           //console.log(JSON.stringify());
          });
       }
 
@@ -374,9 +376,9 @@
           
       }
       
-      API.updateWindowStatuses = function(statuses, callback){ 
+      API.updateWindowStatuses = function(windowStatuses, callback){ 
           var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SaveWindowStatuses';
-          var promise = $.post(url, {statuses: statuses});
+          var promise = $.post(url, {windowStatuses: windowStatuses});
           handlePromie(promise, callback);
       }
       return API;

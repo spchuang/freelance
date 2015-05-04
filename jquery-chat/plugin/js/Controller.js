@@ -110,8 +110,10 @@
                     DisplayName
                 }
             */
-           model.updateWindowStatuses(statuses);
-           //console.log(JSON.stringify(view.deserializeWindowStatuses()));
+            
+            var windowStatuses = view.deserializeWindowStatuses();
+            model.updateWindowStatuses(windowStatuses);
+           //console.log(JSON.stringify());
          });
       }
 
