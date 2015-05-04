@@ -187,7 +187,16 @@
       
       API.updateWindowStatuses = function(windowStatuses, callback){ 
           var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SaveWindowStatuses';
-          var promise = $.post(url, {windowStatuses: windowStatuses});
+          
+          var promise = $.ajax({
+             url: url,
+             type: 'POST',
+             data: JSON.stringify({windowStatuses: windowStatuses}),
+             contentType: 'application/json; charset=utf-8',
+             dataType: 'json'
+         });
+          
+          //var promise = $.post(url, );
           handlePromie(promise, callback);
       }
       return API;
