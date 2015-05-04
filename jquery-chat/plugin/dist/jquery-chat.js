@@ -382,7 +382,7 @@
           var promise = $.ajax({
              url: url,
              type: 'POST',
-             data: JSON.stringify({windowStatuses: windowStatuses}),
+             data: JSON.stringify(windowStatuses),
              contentType: 'application/json; charset=utf-8',
              dataType: 'json'
          });
