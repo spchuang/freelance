@@ -219,11 +219,11 @@
       // callback takes in {success, error}
       API.getFriendList = function(callback){
       
-         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
-         handlePromise(promise, callback);*/
+         handlePromise(promise, callback);
          
-         
+         /*
          
          var data = [
              {
@@ -299,18 +299,18 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);
+          }, 1000);*/
       }
 
       API.startChat = function(Token, callback){
          // Start a chat, and server returns a list of messages
-         /*
+         
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
          var promise = $.get(url, { userToken: Token })
-         handlePromise(promise, callback);*/
+         handlePromise(promise, callback);
          
          
-         
+         /*
          var data = [
             {
                 "DisplayName": "Gomer Pyle :",
@@ -325,7 +325,7 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);
+          }, 1000);*/
       }
 
       API.sendMessage = function(data, callback){
@@ -342,10 +342,10 @@
       }
 
       API.getNewMessages = function(callback){
-         /*var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
          var promise = $.get(url);
 
-         handlePromise(promise, callback);*/
+         handlePromise(promise, callback);
 
          /*
          var data = [{"DisplayName":"Me :","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c2","Direction":1,"Interaction":1,"Message":"Sam Chuang wants to talk with you.","SentOn":"2015-04-13T17:44:26.047Z"}];
