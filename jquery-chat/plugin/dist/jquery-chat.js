@@ -221,13 +221,14 @@
       // All get functions return a promise (waiting on server response)
       // callback takes in {success, error}
       API.getFriendList = function(callback){
-      
+         
          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/GetContactList';
          var promise = $.get(url);
          handlePromise(promise, callback);
          
-         /*
          
+         
+         /*
          var data = [
              {
                  "DisplayName": "Gomer Pyle",
@@ -368,7 +369,8 @@
           
           handlePromise(promise, callback);
           
-          /*var data =[{"DisplayName":"Test 2","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c4","Minimized":true},{"DisplayName":"Test 3","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c5","Minimized":false},{"DisplayName":"Test 9","UserToken":"5ab64a15-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 7","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 11","UserToken":"5aj64a95-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 10","UserToken":"5lb64a95-ca18-4566-ace7-17b1f0b514c8","Minimized":false}];
+          /*
+          var data =[{"DisplayName":"Test 2","UserToken":"00000000-0000-0000-0000-000000000000","Minimized":false},{"DisplayName":"Test 2","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c4","Minimized":true},{"DisplayName":"Test 3","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c5","Minimized":false},{"DisplayName":"Test 9","UserToken":"5ab64a15-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 7","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 11","UserToken":"5aj64a95-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 10","UserToken":"5lb64a95-ca18-4566-ace7-17b1f0b514c8","Minimized":false}];
          var promise = $.Deferred();
          handlePromise(promise, callback);
          
@@ -783,6 +785,8 @@ window.cancelFlashTitle = function () {
       setMinimize: function(minimize) {
          if(minimize) {
             this.$el.removeClass('open');
+         } else {
+            this.$el.addClass('open');
          }
       },
       updateFriendList: function(){
@@ -807,6 +811,7 @@ window.cancelFlashTitle = function () {
       },
       onHeaderClick: function(){
          this.$el.toggleClass('open');
+         vent.trigger('updateWindowStatuses');
       },
       onUserClick: function(evt){
          var target = $(evt.target);

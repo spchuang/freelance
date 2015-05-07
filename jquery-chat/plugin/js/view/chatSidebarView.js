@@ -30,6 +30,8 @@
       setMinimize: function(minimize) {
          if(minimize) {
             this.$el.removeClass('open');
+         } else {
+            this.$el.addClass('open');
          }
       },
       updateFriendList: function(){
@@ -54,6 +56,7 @@
       },
       onHeaderClick: function(){
          this.$el.toggleClass('open');
+         vent.trigger('updateWindowStatuses');
       },
       onUserClick: function(evt){
          var target = $(evt.target);
