@@ -75,21 +75,33 @@
       }
       
       API.loadWindowStatuses = function(windowStatuses) {
+         // 
+      
          //  load in correct order
          _.each(windowStatuses, function(w) {
-            vent.trigger('openUserChat', {
-               DisplayName: w.DisplayName,
-               Token: w.UserToken,
-               Minimized: w.Minimized
-            });
+            if(w.UserToken === "00000000-0000-0000-0000-000000000000") {
+               chatSidebar.setMinimize(w.Minimized);  
+            } else {
+               vent.trigger('openUserChat', {
+                  DisplayName: w.DisplayName,
+                  Token: w.UserToken,
+                  Minimized: w.Minimized
+               });
+            }
          });
       }
       
       // return an array of window statuses
       API.deserializeWindowStatuses = function(){
-         // the order : (0 ~ openChats-2), (closeChats), (openChats-1)
+         // the order : list status, (0 ~ openChats-2), (closeChats), (openChats-1)
 
          var s = [];
+         s.push({
+               DisplayName: "sidebar",
+               UserToken: "00000000-0000-0000-0000-000000000000",
+               Minimized : chatSidebar.isMinimized()
+            });
+         
          for(var i = 0; i < chatExtend.openChats.length-1; i++){
             var token = chatExtend.openChats[i];
             s.push({

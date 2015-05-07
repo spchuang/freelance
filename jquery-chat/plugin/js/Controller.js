@@ -151,27 +151,30 @@
          //set up model and view
          model = $.ChatApp.Model(vent, options);
          view = $.ChatApp.View(vent, options);
-
-         // get friend list & retrieve window statuses
-         model.getFriendList({
-            success: function(friends){
-            
-                // get window statuses
-                model.getWindowStatuses({
-                    success: function(windowStatuses) {
-                        view.loadWindowStatuses(windowStatuses);
-                    },
-                    error: function(){
-                        console.log("ERROR: can't load window statuses");
-                    }
-                });
-            
-               view.loadFriendList(friends);
+         
+         
+         // get window statuses
+         model.getWindowStatuses({
+            success: function(windowStatuses) {
+               
+               view.loadWindowStatuses(windowStatuses);
+               // get friend list
+               model.getFriendList({
+                  success: function(friends){
+                  
+                     view.loadFriendList(friends);
+                  },
+                  error: function(){
+                     console.log("ERROR: can't load friend list");
+                  }
+               });
             },
             error: function(){
-               console.log("ERROR: can't load friend list");
+               console.log("ERROR: can't load window statuses");
             }
          });
+
+         
          
          
          // start polling

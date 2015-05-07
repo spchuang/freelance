@@ -152,27 +152,30 @@
          //set up model and view
          model = $.ChatApp.Model(vent, options);
          view = $.ChatApp.View(vent, options);
-
-         // get friend list & retrieve window statuses
-         model.getFriendList({
-            success: function(friends){
-            
-                // get window statuses
-                model.getWindowStatuses({
-                    success: function(windowStatuses) {
-                        view.loadWindowStatuses(windowStatuses);
-                    },
-                    error: function(){
-                        console.log("ERROR: can't load window statuses");
-                    }
-                });
-            
-               view.loadFriendList(friends);
+         
+         
+         // get window statuses
+         model.getWindowStatuses({
+            success: function(windowStatuses) {
+               
+               view.loadWindowStatuses(windowStatuses);
+               // get friend list
+               model.getFriendList({
+                  success: function(friends){
+                  
+                     view.loadFriendList(friends);
+                  },
+                  error: function(){
+                     console.log("ERROR: can't load friend list");
+                  }
+               });
             },
             error: function(){
-               console.log("ERROR: can't load friend list");
+               console.log("ERROR: can't load window statuses");
             }
          });
+
+         
          
          
          // start polling
@@ -472,21 +475,33 @@
       }
       
       API.loadWindowStatuses = function(windowStatuses) {
+         // 
+      
          //  load in correct order
          _.each(windowStatuses, function(w) {
-            vent.trigger('openUserChat', {
-               DisplayName: w.DisplayName,
-               Token: w.UserToken,
-               Minimized: w.Minimized
-            });
+            if(w.UserToken === "00000000-0000-0000-0000-000000000000") {
+               chatSidebar.setMinimize(w.Minimized);  
+            } else {
+               vent.trigger('openUserChat', {
+                  DisplayName: w.DisplayName,
+                  Token: w.UserToken,
+                  Minimized: w.Minimized
+               });
+            }
          });
       }
       
       // return an array of window statuses
       API.deserializeWindowStatuses = function(){
-         // the order : (0 ~ openChats-2), (closeChats), (openChats-1)
+         // the order : list status, (0 ~ openChats-2), (closeChats), (openChats-1)
 
          var s = [];
+         s.push({
+               DisplayName: "sidebar",
+               UserToken: "00000000-0000-0000-0000-000000000000",
+               Minimized : chatSidebar.isMinimized()
+            });
+         
          for(var i = 0; i < chatExtend.openChats.length-1; i++){
             var token = chatExtend.openChats[i];
             s.push({
@@ -761,6 +776,14 @@ window.cancelFlashTitle = function () {
       },
       setFriendList: function(friends){
          this.friends = friends;
+      },
+      isMinimized: function(){
+         return !this.$el.hasClass('open');
+      },
+      setMinimize: function(minimize) {
+         if(minimize) {
+            this.$el.removeClass('open');
+         }
       },
       updateFriendList: function(){
          this.list.empty();

@@ -24,6 +24,14 @@
       setFriendList: function(friends){
          this.friends = friends;
       },
+      isMinimized: function(){
+         return !this.$el.hasClass('open');
+      },
+      setMinimize: function(minimize) {
+         if(minimize) {
+            this.$el.removeClass('open');
+         }
+      },
       updateFriendList: function(){
          this.list.empty();
          this.$(".loading-sign").addClass('hide');
