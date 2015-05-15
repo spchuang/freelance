@@ -52,8 +52,15 @@
                newHeight = 90;
             } 
             
+            // change textbox height
             this.input.css('height', newHeight+'px');
+            this.input.css('min-height', newHeight+'px');
             this.input.parent().css('height', (newHeight+10) +'px');
+            
+            // change content height (default 260)
+            var newContentHeight = 260 - (newHeight - 30);
+            this.content.css('height', newContentHeight + 'px');
+            //this.content.parent().css('height', newContentHeight + 'px');
          },
          serializeData: function(){
             return {
