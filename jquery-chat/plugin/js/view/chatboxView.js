@@ -54,7 +54,7 @@
             
             // change textbox height
             this.input.css('height', newHeight+'px');
-            this.input.css('min-height', newHeight+'px');
+            
             this.input.parent().css('height', (newHeight+10) +'px');
             
             // change content height (default 260)
