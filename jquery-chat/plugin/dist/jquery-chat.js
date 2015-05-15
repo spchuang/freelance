@@ -197,7 +197,7 @@
 
 "use strict";
 
-/*
+
 (function( $ ){
 
    // Model
@@ -284,12 +284,12 @@
 
 })( jQuery);
 
-*/
+
 
 /*
    The following are TESTING model.
 */
-
+/*
 "use strict";
 
 (function( $ ){
@@ -473,6 +473,7 @@
    }
 
 })( jQuery);
+*/
 "use strict";
 (function( $ ){
 
