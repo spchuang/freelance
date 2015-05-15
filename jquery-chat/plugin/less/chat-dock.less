@@ -67,25 +67,20 @@
          right: 0;
          width: 100%;
          height: @chatbox-footer-height;
-
+         padding: 5px 0;
          color: #7e8187;
          background-color: #fff;
          border-top: 1px solid #bbbcc0;
          .border-box;
          textarea{
             overflow: auto;
-            vertical-align: top;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            line-height: 15px;
          }
          textarea.chatbox-input{
             width: 100%;
-
+            height: @chatbox-footer-height - 10px;
             margin: 0;
-            padding: 0;
-            padding: 5px 5px;
-            overflow-x: hidden;
-            max-height: 72px;
+            padding: 0 5px;
             font-size: 13px;
             background-color: inherit;
             border: none !important;

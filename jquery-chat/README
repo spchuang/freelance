@@ -44,3 +44,7 @@ View
 
 Model
 - The only object that communicates with the server APIs. Generally, what happens is an event occured in the some view, which triggers an event. Then a callback defined in the controller would be triggered, and sends a request to the Model and depending on the response triggers some function in the view.
+
+Work
+------------------
+5/14: Fix the textbox scrolling issue. Add auto-expand and shift-enter.

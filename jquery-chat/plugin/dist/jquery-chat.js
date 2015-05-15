@@ -193,6 +193,8 @@
 
 })( jQuery);
 
+/*
+
 "use strict";
 
 
@@ -226,9 +228,96 @@
          var promise = $.get(url);
          handlePromise(promise, callback);
          
+      }
+
+      API.startChat = function(Token, callback){
+         // Start a chat, and server returns a list of messages
          
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
+         var promise = $.get(url, { userToken: Token })
+         handlePromise(promise, callback);
          
-         /*
+      }
+
+      API.sendMessage = function(data, callback){
+      
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SendChatMessage';
+         var promise = $.post(url, {UserToken: data.Token, Message: data.Message});
+         handlePromise(promise, callback);
+      }
+
+      API.leaveChat = function(Token, callback){
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/LeaveChat';
+         var promise = $.get(url, { userToken: Token })
+         handlePromise(promise, callback);
+      }
+
+      API.getNewMessages = function(callback){
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
+         var promise = $.get(url);
+
+         handlePromise(promise, callback);
+      }
+      
+      API.getWindowStatuses = function(callback){
+          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/RetrieveWindowStatuses';
+          var promise = $.get(url);
+          
+          handlePromise(promise, callback);
+      }
+      
+      API.updateWindowStatuses = function(windowStatuses, callback){ 
+         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/SaveWindowStatuses';
+          
+          var promise = $.ajax({
+             url: url,
+             type: 'POST',
+             data: JSON.stringify(windowStatuses),
+             contentType: 'application/json; charset=utf-8',
+             dataType: 'json'
+         });
+          
+         handlePromise(promise, callback);
+      }
+      return API;
+   }
+
+})( jQuery);
+
+*/
+
+/*
+   The following are TESTING model.
+*/
+
+"use strict";
+
+(function( $ ){
+
+   // Model
+   $.ChatApp.Model = function(vent, options){
+      var API = {};
+
+      var baseUrl = options.baseUrl || "" ;
+      if (!baseUrl) {
+         console.log("[ERROR]: Model base url is not specified");
+      }
+
+      function handlePromise(promise, callback){
+         promise
+            .done(function(res){
+               if(callback.success) callback.success(res);
+            })
+            .fail(function(res){
+               if(callback.error) callback.error();
+            });
+      }
+
+      // expost public functions for Chat Model
+      // All get functions return a promise (waiting on server response)
+      // callback takes in {success, error}
+      API.getFriendList = function(callback){
+      
          var data = [
              {
                  "DisplayName": "Gomer Pyle",
@@ -303,18 +392,12 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);*/
+          }, 1000);
       }
 
       API.startChat = function(Token, callback){
          // Start a chat, and server returns a list of messages
-         
-         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/StartChat';
-         var promise = $.get(url, { userToken: Token })
-         handlePromise(promise, callback);
-         
-         
-         /*
+ 
          var data = [
             {
                 "DisplayName": "Gomer Pyle :",
@@ -329,7 +412,7 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);*/
+          }, 1000);
       }
 
       API.sendMessage = function(data, callback){
@@ -346,12 +429,7 @@
       }
 
       API.getNewMessages = function(callback){
-         var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/CheckForNewMessages';
-         var promise = $.get(url);
-
-         handlePromise(promise, callback);
-
-         /*
+  
          var data = [{"DisplayName":"Me :","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c2","Direction":1,"Interaction":1,"Message":"Sam Chuang wants to talk with you.","SentOn":"2015-04-13T17:44:26.047Z"}];
          var promise = $.Deferred();
          handlePromise(promise, callback);
@@ -360,16 +438,12 @@
          setTimeout(
            function(){
              promise.resolve(data);
-          }, 1000);*/
+          }, 1000);
       }
       
       API.getWindowStatuses = function(callback){
-          var url = baseUrl + '/DesktopModules/LifeWire/Services/API/Chat/RetrieveWindowStatuses';
-          var promise = $.get(url);
+      
           
-          handlePromise(promise, callback);
-          
-          /*
           var data =[{"DisplayName":"Test 2","UserToken":"00000000-0000-0000-0000-000000000000","Minimized":false},{"DisplayName":"Test 2","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c4","Minimized":true},{"DisplayName":"Test 3","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c5","Minimized":false},{"DisplayName":"Test 9","UserToken":"5ab64a15-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 7","UserToken":"5ab64a95-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 11","UserToken":"5aj64a95-ca18-4566-ace7-17b1f0b514c9","Minimized":false},{"DisplayName":"Test 10","UserToken":"5lb64a95-ca18-4566-ace7-17b1f0b514c8","Minimized":false}];
          var promise = $.Deferred();
          handlePromise(promise, callback);
@@ -378,7 +452,7 @@
          setTimeout(
             function(){
                promise.resolve(data);
-         }, 0);*/
+         }, 0);
           
       }
       
@@ -399,6 +473,7 @@
    }
 
 })( jQuery);
+
 
 "use strict";
 (function( $ ){
@@ -857,12 +932,45 @@ window.cancelFlashTitle = function () {
             this.messagesDom = [];
             
             
+            // register textbox height change
+            /*
+             observe(text, 'change',  resize);
+             observe(text, 'cut',     delayedResize);
+             observe(text, 'paste',   delayedResize);
+             observe(text, 'drop',    delayedResize);
+             observe(text, 'keydown', delayedResize);
+             */
          },
          events: {
             "click" : "onChatBoxClick",
             "click .chatbox-header" : "onHeaderClick",
             "click .close-btn" : "onCloseClick",
             "keydown .chatbox-input" : "onKeyDown",
+            
+            "change .chatbox-input" : "textBoxResize",
+            "keydown.resize .chatbox-input" : "delayedResize",
+            "cut .chatbox-input" : "delayedResize",
+            "paste .chatbox-input" : "delayedResize",
+            "drop .chatbox-input" : "delayedResize"
+         },
+         delayedResize: function(){
+            window.setTimeout($.proxy(this.textBoxResize, this), 0);
+         },
+         textBoxResize: function(){
+         
+            // expand only to 4 extra rows
+            this.input.css('height', 'auto');
+            var newHeight = this.input.prop('scrollHeight');
+            
+            newHeight = Math.max(newHeight, 30);
+            
+            // set proper height
+            if ((newHeight - 30)/15 > 4) {
+               newHeight = 90;
+            } 
+            
+            this.input.css('height', newHeight+'px');
+            this.input.parent().css('height', (newHeight+10) +'px');
          },
          serializeData: function(){
             return {
@@ -995,8 +1103,10 @@ window.cancelFlashTitle = function () {
          onKeyDown: function(evt){
             var key = evt.keyCode || evt.which,
                ENTER_KEY = 13;
-
-            if(key == ENTER_KEY){
+            
+               
+            // Enter was pressed without shift key
+            if(key == ENTER_KEY && !evt.shiftKey){
                var message = this.input.val();
                //this.addMessage({MessageContent: message, DisplayName: 'Test'});
                vent.trigger("sendMessage", {
@@ -1007,7 +1117,6 @@ window.cancelFlashTitle = function () {
                evt.preventDefault();
                //submit
             }
-
          }
       });
    }

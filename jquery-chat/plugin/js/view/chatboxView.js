@@ -15,12 +15,45 @@
             this.messagesDom = [];
             
             
+            // register textbox height change
+            /*
+             observe(text, 'change',  resize);
+             observe(text, 'cut',     delayedResize);
+             observe(text, 'paste',   delayedResize);
+             observe(text, 'drop',    delayedResize);
+             observe(text, 'keydown', delayedResize);
+             */
          },
          events: {
             "click" : "onChatBoxClick",
             "click .chatbox-header" : "onHeaderClick",
             "click .close-btn" : "onCloseClick",
             "keydown .chatbox-input" : "onKeyDown",
+            
+            "change .chatbox-input" : "textBoxResize",
+            "keydown.resize .chatbox-input" : "delayedResize",
+            "cut .chatbox-input" : "delayedResize",
+            "paste .chatbox-input" : "delayedResize",
+            "drop .chatbox-input" : "delayedResize"
+         },
+         delayedResize: function(){
+            window.setTimeout($.proxy(this.textBoxResize, this), 0);
+         },
+         textBoxResize: function(){
+         
+            // expand only to 4 extra rows
+            this.input.css('height', 'auto');
+            var newHeight = this.input.prop('scrollHeight');
+            
+            newHeight = Math.max(newHeight, 30);
+            
+            // set proper height
+            if ((newHeight - 30)/15 > 4) {
+               newHeight = 90;
+            } 
+            
+            this.input.css('height', newHeight+'px');
+            this.input.parent().css('height', (newHeight+10) +'px');
          },
          serializeData: function(){
             return {
@@ -153,8 +186,10 @@
          onKeyDown: function(evt){
             var key = evt.keyCode || evt.which,
                ENTER_KEY = 13;
-
-            if(key == ENTER_KEY){
+            
+               
+            // Enter was pressed without shift key
+            if(key == ENTER_KEY && !evt.shiftKey){
                var message = this.input.val();
                //this.addMessage({MessageContent: message, DisplayName: 'Test'});
                vent.trigger("sendMessage", {
@@ -165,7 +200,6 @@
                evt.preventDefault();
                //submit
             }
-
          }
       });
    }
